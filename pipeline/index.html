@@ -934,16 +934,65 @@ let appointments = [];
 let calMonth     = new Date();
 let currentLead  = null;
 
-// ─── Init ─────────────────────────────────────────────────────
-(function init() {
-  try { setup = JSON.parse(localStorage.getItem(SETUP_KEY)); } catch {}
+// ─── Init — pull name + GAS URL from auth session ─────────────
+(async function init() {
   try { appointments = JSON.parse(localStorage.getItem(APPTS_KEY)) || []; } catch {}
 
-  if (setup?.gasUrl && setup?.callerName) {
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('nav-caller').textContent = setup.callerName;
-    loadLeads();
-    renderCalendar();
+  // Get session saved by login page
+  let session = null;
+  try { session = JSON.parse(localStorage.getItem('edgeform_crm_session')); } catch {}
+
+  if (!session?.token) {
+    window.location.href = '/login/index.html';
+    return;
+  }
+
+  try {
+    const r    = await fetch(GAS_AUTH + '?payload=' + encodeURIComponent(JSON.stringify({
+      action: 'getUserConfig',
+      token:  session.token,
+    })));
+    const data = await r.json();
+
+    if (!data.ok) {
+      window.location.href = '/login/index.html';
+      return;
+    }
+
+    setup = {
+      callerName: data.name,
+      gasUrl:     data.gas_url,
+      email:      data.email,
+      role:       data.role,
+    };
+
+    document.getElementById('nav-caller').textContent = data.name;
+
+    if (data.gas_url) {
+      // Has GAS URL in column G — boot straight in
+      document.getElementById('setup-screen').style.display = 'none';
+      loadLeads();
+      renderCalendar();
+    } else {
+      // No GAS URL yet — show setup screen (name already known)
+      document.getElementById('setup-screen').style.display = 'flex';
+      const note = document.createElement('div');
+      note.style.cssText = 'font-family:monospace;font-size:12px;color:#1976d2;margin-bottom:12px;padding:8px 12px;background:#e3f2fd;border-radius:6px;';
+      note.textContent = '👤 ' + data.name + ' — paste your LeadHunter GAS URL below';
+      const card = document.querySelector('.setup-card');
+      card.insertBefore(note, card.querySelector('.setup-label'));
+    }
+
+  } catch(err) {
+    // Network error — try cached setup as fallback
+    try { setup = JSON.parse(localStorage.getItem(SETUP_KEY)); } catch {}
+    if (setup?.gasUrl) {
+      document.getElementById('setup-screen').style.display = 'none';
+      loadLeads();
+      renderCalendar();
+    } else {
+      document.getElementById('setup-screen').style.display = 'flex';
+    }
   }
 })();
 
