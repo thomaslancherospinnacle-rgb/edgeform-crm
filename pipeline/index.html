@@ -726,9 +726,7 @@ nav {
 <div id="setup-screen">
   <div class="setup-card">
     <div class="setup-title">⚡ Pipeline Setup</div>
-    <div class="setup-sub">Paste your LeadHunter Google Apps Script URL to connect your leads database. This is saved locally and only used on this device.</div>
-    <label class="setup-label">Your Name (Caller)</label>
-    <input class="setup-input" id="setup-caller" placeholder="e.g. Thomas Lancheros">
+    <div class="setup-sub">Your name is pulled from your login. Just paste your LeadHunter GAS URL — this only appears if your URL isn't set in the auth sheet yet.</div>
     <label class="setup-label">LeadHunter GAS URL</label>
     <input class="setup-input" id="setup-gas-url" placeholder="https://script.google.com/macros/s/…/exec">
     <button class="setup-btn" onclick="saveSetup()">Connect →</button>
@@ -900,6 +898,7 @@ nav {
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────
+const GAS_AUTH    = 'https://script.google.com/macros/s/AKfycbz253Iph6zsKiM-ltJm5EX8P8oSzcZSUQDGGJyxD0MUlwjUyorFo6y-n_3VWFzSkZG5/exec';
 const SETUP_KEY   = 'pipeline_setup';
 const APPTS_KEY   = 'pipeline_appointments';
 const GCAL_KEY    = 'pipeline_gcal_id';
