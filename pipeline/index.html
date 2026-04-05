@@ -948,19 +948,16 @@ let currentLead  = null;
 })();
 
 function saveSetup() {
-  const callerName = document.getElementById('setup-caller').value.trim();
-  const gasUrl     = document.getElementById('setup-gas-url').value.trim();
-  if (!callerName || !gasUrl) {
-    alert('Please fill in your name and the GAS URL.'); return;
-  }
-
-  setup = { callerName, gasUrl };
+  const gasUrl = document.getElementById('setup-gas-url').value.trim();
+  if (!gasUrl) { alert('Please paste your LeadHunter GAS URL.'); return; }
+  setup = setup || {};
+  setup.gasUrl = gasUrl;
   localStorage.setItem(SETUP_KEY, JSON.stringify(setup));
   document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('nav-caller').textContent = callerName;
   loadLeads();
   renderCalendar();
 }
+
 
 function resetSetup() {
   if (confirm('Reset connection settings?')) {
