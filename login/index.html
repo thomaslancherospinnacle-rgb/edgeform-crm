@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edgeform Media — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060608;
+    --surface: #0e0e12;
+    --surface2: #16161c;
+    --border: #22222c;
+    --border-hi: #3a3a4a;
+    --text: #ededf0;
+    --text-dim: #9898a8;
+    --text-muted: #55556a;
+    --accent: #7b6cff;
+    --accent-glow: rgba(123,108,255,0.18);
+    --accent-bright: #a99fff;
+    --red: #ff5c5c;
+    --green: #3dffa0;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Ambient gradient */
+  .bg-glow {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(123,108,255,0.07) 0%, transparent 70%);
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Subtle dot grid */
+  .bg-dots {
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(123,108,255,0.08) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    animation: fadeIn 0.45s ease both;
+  }
+
+  /* ── Brand ── */
+  .brand {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 8px;
+  }
+
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 24px rgba(123,108,255,0.4);
+    flex-shrink: 0;
+  }
+
+  .logo-mark svg { width: 20px; height: 20px; }
+
+  .logo-name {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  .logo-name span { color: var(--accent-bright); }
+
+  .brand-tagline {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+
+  .card-sub {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* ── Steps ── */
+  .step { display: none; }
+  .step.active { display: block; animation: stepIn 0.2s ease both; }
+
+  /* ── Step pills ── */
+  .step-pills {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 22px;
+  }
+
+  .pill {
+    height: 3px;
+    flex: 1;
+    border-radius: 99px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+
+  .pill.done, .pill.active { background: var(--accent); }
+
+  /* ── Fields ── */
+  .field { margin-bottom: 14px; }
+
+  label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    padding: 10px 13px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  input::placeholder { color: var(--text-muted); }
+
+  /* ── OTP ── */
+  .otp-wrap {
+    display: flex;
+    gap: 7px;
+  }
+
+  .otp-wrap input {
+    flex: 1;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 500;
+    padding: 13px 0;
+    border-radius: 8px;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 11px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+    margin-top: 6px;
+    box-shadow: 0 4px 16px rgba(123,108,255,0.3);
+  }
+
+  .btn:hover { opacity: 0.9; box-shadow: 0 6px 20px rgba(123,108,255,0.4); }
+  .btn:active { transform: scale(0.99); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; transform: none; }
+
+  .btn.ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    box-shadow: none;
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .btn.ghost:hover { border-color: var(--border-hi); color: var(--text); opacity: 1; box-shadow: none; }
+
+  .btn.loading .btn-text { opacity: 0; }
+  .btn.loading::after {
+    content: '';
+    position: absolute;
+    inset: 0; margin: auto;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+  }
+
+  /* ── Messages ── */
+  .msg {
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 9px 12px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    display: none;
+    border: 1px solid;
+  }
+
+  .msg.show { display: block; }
+  .msg.error { color: var(--red); border-color: rgba(255,92,92,0.3); background: rgba(255,92,92,0.07); }
+  .msg.success { color: var(--green); border-color: rgba(61,255,160,0.3); background: rgba(61,255,160,0.06); }
+  .msg.info { color: var(--text-dim); border-color: var(--border); background: var(--surface2); }
+
+  /* ── Footer link ── */
+  .card-foot {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-foot span { font-size: 12px; color: var(--text-muted); }
+
+  .card-foot a, .link-btn {
+    font-size: 12px;
+    color: var(--accent-bright);
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: var(--sans);
+    padding: 0;
+  }
+
+  .card-foot a:hover, .link-btn:hover { text-decoration: underline; }
+
+  /* ── Resend ── */
+  .resend-row {
+    margin-top: 14px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .resend-row span {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .resend-row button {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent-bright);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .resend-row button:disabled { color: var(--text-muted); cursor: not-allowed; }
+  .resend-row button:not(:disabled):hover { text-decoration: underline; }
+
+  /* ── Footer watermark ── */
+  .foot-mark {
+    text-align: center;
+    margin-top: 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div class="bg-dots"></div>
+
+<div class="wrap">
+
+  <div class="brand">
+    <div class="brand-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M4 5h12M4 10h8M4 15h10" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="logo-name">Edgeform <span>Media</span></div>
+    </div>
+    <div class="brand-tagline">Client Relationship Manager</div>
+  </div>
+
+  <div class="card" id="card">
+
+    <!-- STEP: Email -->
+    <div class="step active" id="step-email">
+      <div class="step-pills">
+        <div class="pill active" id="p1"></div>
+        <div class="pill" id="p2"></div>
+        <div class="pill" id="p3"></div>
+      </div>
+      <div class="card-title">Sign in</div>
+      <div class="card-sub">Enter your email to continue.</div>
+      <div id="msg-email" class="msg"></div>
+      <div class="field">
+        <label>Email address</label>
+        <input type="email" id="inp-email" placeholder="you@edgeform-media.com" autocomplete="email">
+      </div>
+      <button class="btn" id="btn-email" onclick="doEmail()">
+        <span class="btn-text">Continue →</span>
+      </button>
+      <div class="card-foot">
+        <span>No account?</span>
+        <button class="link-btn" onclick="goStep('step-register')">Create one</button>
+      </div>
+    </div>
+
+    <!-- STEP: Password (existing users) -->
+    <div class="step" id="step-password">
+      <div class="step-pills">
+        <div class="pill done"></div>
+        <div class="pill active"></div>
+        <div class="pill"></div>
+      </div>
+      <div class="card-title">Welcome back</div>
+      <div class="card-sub" id="pw-sub">Signing in as —</div>
+      <div id="msg-pw" class="msg"></div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="inp-pw" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn" id="btn-pw" onclick="doLogin()">
+        <span class="btn-text">Sign In →</span>
+      </button>
+      <button class="btn ghost" onclick="goStep('step-email')">← Back</button>
+    </div>
+
+    <!-- STEP: OTP Verify -->
+    <div class="step" id="step-verify">
+      <div class="step-pills">
+        <div class="pill done"></div>
+        <div class="pill done"></div>
+        <div class="pill active"></div>
+      </div>
+      <div class="card-title">Check your inbox</div>
+      <div class="card-sub" id="otp-sub">A 6-digit code was sent to —</div>
+      <div id="msg-otp" class="msg"></div>
+      <div class="field">
+        <label>Verification Code</label>
+        <div class="otp-wrap" id="otp-wrap">
+          <input type="text" maxlength="1" class="otp-cell" inputmode="numeric">
+          <input type="text" maxlength="1" class="otp-cell" inputmode="numeric">
+          <input type="text" maxlength="1" class="otp-cell" inputmode="numeric">
+          <input type="text" maxlength="1" class="otp-cell" inputmode="numeric">
+          <input type="text" maxlength="1" class="otp-cell" inputmode="numeric">
+          <input type="text" maxlength="1" class="otp-cell" inputmode="numeric">
+        </div>
+      </div>
+      <button class="btn" id="btn-otp" onclick="doVerify()">
+        <span class="btn-text">Verify →</span>
+      </button>
+      <div class="resend-row">
+        <span>Didn't get it?</span>
+        <button id="resend-btn" disabled onclick="doResend()">Resend</button>
+        <span id="resend-timer"></span>
+      </div>
+    </div>
+
+    <!-- STEP: Register -->
+    <div class="step" id="step-register">
+      <div class="step-pills">
+        <div class="pill active"></div>
+        <div class="pill"></div>
+        <div class="pill"></div>
+      </div>
+      <div class="card-title">Create account</div>
+      <div class="card-sub">Set up your Edgeform CRM access.</div>
+      <div id="msg-reg" class="msg"></div>
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="reg-name" placeholder="Jane Smith" autocomplete="name">
+      </div>
+      <div class="field">
+        <label>Email address</label>
+        <input type="email" id="reg-email" placeholder="you@company.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="reg-pw" placeholder="Min. 8 characters" autocomplete="new-password">
+      </div>
+      <button class="btn" id="btn-reg" onclick="doRegister()">
+        <span class="btn-text">Create Account →</span>
+      </button>
+      <button class="btn ghost" onclick="goStep('step-email')">← Back to Sign In</button>
+    </div>
+
+  </div>
+
+  <div class="foot-mark">EDGEFORM MEDIA · SECURE ACCESS</div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────
+const GAS_AUTH    = 'PASTE_YOUR_AUTH_GAS_URL_HERE';
+const EMAIL_WORKER = 'https://email.edgeformmedia.workers.dev';
+const FROM_EMAIL  = 'noreply@edgeform-media.com';
+const SESSION_KEY = 'edgeform_crm_session';
+const HOME_URL    = '/home/index.html';
+
+// ─── State ────────────────────────────────────────────────────
+let currentEmail = '';
+let resendInterval = null;
+
+// ─── Redirect if already have a valid session ─────────────────
+(async () => {
+  const token = getToken();
+  if (token) {
+    const ok = await verifySession(token);
+    if (ok) window.location.href = HOME_URL;
+  }
+})();
+
+// ─── Session helpers ──────────────────────────────────────────
+function getToken() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY))?.token || null; } catch { return null; }
+}
+
+function saveSession(data) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+}
+
+async function verifySession(token) {
+  try {
+    const r = await gas({ action: 'verifySession', token });
+    return r?.ok === true;
+  } catch { return false; }
+}
+
+// ─── GAS request helper ───────────────────────────────────────
+async function gas(payload) {
+  const url = GAS_AUTH + '?payload=' + encodeURIComponent(JSON.stringify(payload));
+  const r = await fetch(url);
+  return r.json();
+}
+
+// ─── Email worker helper ──────────────────────────────────────
+async function sendEmail(to, subject, body) {
+  const r = await fetch(EMAIL_WORKER, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: `Edgeform Media <${FROM_EMAIL}>`, to, subject, body })
+  });
+  return r.json();
+}
+
+// ─── UI helpers ───────────────────────────────────────────────
+function goStep(id) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function msg(id, type, text) {
+  const el = document.getElementById(id);
+  el.className = `msg ${type} show`;
+  el.textContent = text;
+}
+
+function clearMsg(id) {
+  const el = document.getElementById(id);
+  el.className = 'msg';
+}
+
+function setLoading(id, on) {
+  const b = document.getElementById(id);
+  b.classList.toggle('loading', on);
+  b.disabled = on;
+}
+
+// ─── OTP widget ───────────────────────────────────────────────
+const otpCells = () => [...document.querySelectorAll('.otp-cell')];
+
+function otpValue() { return otpCells().map(i => i.value).join(''); }
+
+function clearOTP() {
+  otpCells().forEach(i => i.value = '');
+  otpCells()[0]?.focus();
+}
+
+document.querySelectorAll('.otp-cell').forEach((inp, i, all) => {
+  inp.addEventListener('input', e => {
+    const v = e.target.value.replace(/\D/g, '');
+    e.target.value = v;
+    if (v && i < all.length - 1) all[i + 1].focus();
+    if (otpValue().length === 6) doVerify();
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Backspace' && !inp.value && i > 0) all[i - 1].focus();
+  });
+  inp.addEventListener('paste', e => {
+    e.preventDefault();
+    const p = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+    [...p].forEach((c, j) => { if (all[j]) all[j].value = c; });
+    if (all[Math.min(p.length, 5)]) all[Math.min(p.length, 5)].focus();
+    if (p.length === 6) doVerify();
+  });
+});
+
+// ─── Enter keys ───────────────────────────────────────────────
+document.getElementById('inp-email').addEventListener('keydown', e => { if (e.key === 'Enter') doEmail(); });
+document.getElementById('inp-pw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('reg-pw').addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+
+// ─── STEP 1: Email ────────────────────────────────────────────
+async function doEmail() {
+  const email = document.getElementById('inp-email').value.trim();
+  clearMsg('msg-email');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg('msg-email', 'error', 'Enter a valid email address.');
+    return;
+  }
+  currentEmail = email;
+  setLoading('btn-email', true);
+
+  try {
+    const r = await gas({ action: 'checkEmail', email });
+    if (r.exists) {
+      // Known user → password
+      document.getElementById('pw-sub').innerHTML = `Signing in as <strong>${email}</strong>`;
+      goStep('step-password');
+    } else {
+      // Unknown → register
+      document.getElementById('reg-email').value = email;
+      goStep('step-register');
+    }
+  } catch {
+    msg('msg-email', 'error', 'Could not reach auth service. Try again.');
+  }
+
+  setLoading('btn-email', false);
+}
+
+// ─── STEP 2: Login ────────────────────────────────────────────
+async function doLogin() {
+  const pw = document.getElementById('inp-pw').value;
+  clearMsg('msg-pw');
+  if (!pw) { msg('msg-pw', 'error', 'Enter your password.'); return; }
+
+  setLoading('btn-pw', true);
+
+  try {
+    const r = await gas({ action: 'login', email: currentEmail, password: pw });
+    if (r.ok) {
+      saveSession({ token: r.token, email: currentEmail, name: r.name });
+      window.location.href = HOME_URL;
+    } else {
+      msg('msg-pw', 'error', r.error || 'Incorrect password.');
+    }
+  } catch {
+    msg('msg-pw', 'error', 'Auth service error. Try again.');
+  }
+
+  setLoading('btn-pw', false);
+}
+
+// ─── Register ─────────────────────────────────────────────────
+async function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pw    = document.getElementById('reg-pw').value;
+  clearMsg('msg-reg');
+
+  if (!name) { msg('msg-reg', 'error', 'Enter your full name.'); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg('msg-reg', 'error', 'Enter a valid email.'); return; }
+  if (pw.length < 8) { msg('msg-reg', 'error', 'Password must be at least 8 characters.'); return; }
+
+  currentEmail = email;
+  setLoading('btn-reg', true);
+
+  try {
+    // Register user in GAS (creates account, generates code, returns it)
+    const r = await gas({ action: 'signup', name, email, password: pw });
+    if (!r.ok) {
+      msg('msg-reg', 'error', r.error || 'Signup failed.');
+      setLoading('btn-reg', false);
+      return;
+    }
+
+    // GAS returns the code; we send the email from the frontend via worker
+    await sendVerificationEmail(email, r.code);
+    showOTPStep(email);
+
+  } catch (err) {
+    msg('msg-reg', 'error', 'Error: ' + err.message);
+  }
+
+  setLoading('btn-reg', false);
+}
+
+// ─── Send verification email ──────────────────────────────────
+async function sendVerificationEmail(email, code) {
+  const body =
+`Your Edgeform Media CRM verification code is:
+
+${code}
+
+This code expires in 10 minutes.
+
+If you did not request this, you can safely ignore this email.
+
+— Edgeform Media`;
+
+  await sendEmail(email, `Your CRM verification code: ${code}`, body);
+}
+
+// ─── Show OTP step ────────────────────────────────────────────
+function showOTPStep(email) {
+  document.getElementById('otp-sub').innerHTML = `Code sent to <strong>${email}</strong>`;
+  clearOTP();
+  goStep('step-verify');
+  startResendTimer();
+}
+
+// ─── Resend timer ─────────────────────────────────────────────
+function startResendTimer() {
+  const btn = document.getElementById('resend-btn');
+  const timerEl = document.getElementById('resend-timer');
+  btn.disabled = true;
+  let secs = 60;
+  timerEl.textContent = `(${secs}s)`;
+  clearInterval(resendInterval);
+  resendInterval = setInterval(() => {
+    secs--;
+    if (secs <= 0) {
+      clearInterval(resendInterval);
+      btn.disabled = false;
+      timerEl.textContent = '';
+    } else {
+      timerEl.textContent = `(${secs}s)`;
+    }
+  }, 1000);
+}
+
+async function doResend() {
+  clearMsg('msg-otp');
+  clearOTP();
+  document.getElementById('resend-btn').disabled = true;
+
+  try {
+    const r = await gas({ action: 'resendCode', email: currentEmail });
+    if (r.ok) {
+      await sendVerificationEmail(currentEmail, r.code);
+      msg('msg-otp', 'success', 'New code sent.');
+      startResendTimer();
+    } else {
+      msg('msg-otp', 'error', r.error || 'Could not resend code.');
+    }
+  } catch {
+    msg('msg-otp', 'error', 'Failed to resend. Try again.');
+  }
+}
+
+// ─── Verify OTP ───────────────────────────────────────────────
+async function doVerify() {
+  const code = otpValue();
+  clearMsg('msg-otp');
+  if (code.length !== 6) return;
+
+  setLoading('btn-otp', true);
+
+  try {
+    const r = await gas({ action: 'verifyCode', email: currentEmail, code });
+    if (r.ok) {
+      saveSession({ token: r.token, email: currentEmail, name: r.name });
+      window.location.href = HOME_URL;
+    } else {
+      msg('msg-otp', 'error', r.error || 'Invalid or expired code.');
+      clearOTP();
+    }
+  } catch {
+    msg('msg-otp', 'error', 'Auth service error. Try again.');
+  }
+
+  setLoading('btn-otp', false);
+}
+</script>
+</body>
+</html>
