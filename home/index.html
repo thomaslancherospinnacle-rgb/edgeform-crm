@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edgeform Media — CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060608;
+    --surface: #0e0e12;
+    --surface2: #16161c;
+    --border: #22222c;
+    --border-hi: #3a3a4a;
+    --text: #ededf0;
+    --text-dim: #9898a8;
+    --text-muted: #55556a;
+    --accent: #7b6cff;
+    --accent-glow: rgba(123,108,255,0.15);
+    --accent-bright: #a99fff;
+    --red: #ff5c5c;
+    --green: #3dffa0;
+    --blue: #3dc8ff;
+    --orange: #ffb347;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --nav-h: 54px;
+    --side-w: 214px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  body.ready { opacity: 1; }
+
+  /* ── Splash guard ── */
+  #auth-guard {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .guard-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .guard-logo .mark {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 20px rgba(123,108,255,0.35);
+  }
+
+  .guard-logo .mark svg { width: 18px; }
+  .guard-logo span { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .guard-logo span em { color: var(--accent-bright); font-style: normal; }
+
+  .guard-spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border-hi);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .guard-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── Top Nav ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    background: rgba(6,6,8,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 200;
+    gap: 0;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: auto;
+    text-decoration: none;
+  }
+
+  .nav-mark {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 12px rgba(123,108,255,0.3);
+    flex-shrink: 0;
+  }
+
+  .nav-mark svg { width: 15px; }
+
+  .nav-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .nav-name em { color: var(--accent-bright); font-style: normal; }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .nav-email {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .nav-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent-glow);
+    border: 1px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent-bright);
+    flex-shrink: 0;
+  }
+
+  .nav-signout {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .nav-signout:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── Layout ── */
+  .layout {
+    display: flex;
+    padding-top: var(--nav-h);
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    width: var(--side-w);
+    flex-shrink: 0;
+    position: fixed;
+    top: var(--nav-h);
+    bottom: 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    overflow-y: auto;
+    background: var(--bg);
+  }
+
+  .side-section { margin-bottom: 20px; }
+
+  .side-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 16px 7px;
+  }
+
+  .side-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 16px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    border-radius: 0;
+    transition: all 0.13s;
+  }
+
+  .side-item:hover { color: var(--text); background: var(--surface); }
+
+  .side-item.active {
+    color: var(--accent-bright);
+    background: var(--accent-glow);
+    border-left-color: var(--accent);
+    font-weight: 500;
+  }
+
+  .side-icon {
+    width: 16px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+
+  .side-item.active .side-icon { opacity: 1; }
+
+  .side-badge {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: var(--surface2);
+  }
+
+  .side-badge.live {
+    border-color: rgba(123,108,255,0.35);
+    color: var(--accent-bright);
+    background: var(--accent-glow);
+  }
+
+  .side-spacer { flex: 1; }
+
+  .side-version {
+    padding: 0 16px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    opacity: 0.4;
+  }
+
+  /* ── Main ── */
+  main {
+    flex: 1;
+    margin-left: var(--side-w);
+    padding: 28px 28px 60px;
+    min-height: calc(100vh - var(--nav-h));
+  }
+
+  /* ── Page header ── */
+  .page-head {
+    margin-bottom: 28px;
+    animation: fadeUp 0.35s ease both;
+  }
+
+  .page-title {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .page-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .page-sub .hi { color: var(--accent-bright); }
+
+  /* ── KPI row ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.35s ease 0.04s both;
+  }
+
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+
+  .kpi:hover { border-color: var(--border-hi); transform: translateY(-1px); }
+
+  .kpi-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .kpi-val {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .kpi-delta {
+    font-family: var(--mono);
+    font-size: 10px;
+  }
+
+  .up { color: var(--green); }
+  .down { color: var(--red); }
+  .neutral { color: var(--text-muted); }
+
+  .kpi-bg-icon {
+    position: absolute;
+    right: 14px; top: 14px;
+    font-size: 22px;
+    opacity: 0.08;
+  }
+
+  /* ── Two-col ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    animation: fadeUp 0.35s ease 0.08s both;
+  }
+
+  /* ── Panel ── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .panel-link {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent-bright);
+    background: none;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+  }
+
+  .panel-link:hover { text-decoration: underline; }
+
+  /* ── Table ── */
+  table.data { width: 100%; border-collapse: collapse; }
+
+  table.data th {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 9px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  table.data td {
+    padding: 11px 18px;
+    font-size: 12px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  table.data tr:last-child td { border-bottom: none; }
+  table.data tr:hover td { background: var(--surface2); }
+
+  .td-name {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 500;
+  }
+
+  .avi {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  /* ── Chips ── */
+  .chip {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 1px solid;
+  }
+
+  .chip-green { color: var(--green); border-color: rgba(61,255,160,0.25); background: rgba(61,255,160,0.07); }
+  .chip-blue { color: var(--blue); border-color: rgba(61,200,255,0.25); background: rgba(61,200,255,0.07); }
+  .chip-orange { color: var(--orange); border-color: rgba(255,179,71,0.25); background: rgba(255,179,71,0.07); }
+  .chip-red { color: var(--red); border-color: rgba(255,92,92,0.25); background: rgba(255,92,92,0.07); }
+  .chip-muted { color: var(--text-muted); border-color: var(--border); background: var(--surface2); }
+  .chip-purple { color: var(--accent-bright); border-color: rgba(123,108,255,0.25); background: rgba(123,108,255,0.07); }
+
+  /* ── Activity feed ── */
+  .feed { padding: 4px 0; }
+
+  .feed-item {
+    display: flex;
+    gap: 11px;
+    padding: 11px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .feed-item:last-child { border-bottom: none; }
+
+  .feed-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .feed-body { flex: 1; }
+
+  .feed-text {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 3px;
+  }
+
+  .feed-text strong { color: var(--text); font-weight: 500; }
+
+  .feed-time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 24px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 20px;
+    z-index: 100;
+  }
+
+  .sb-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+  }
+
+  .sb-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 700px) {
+    aside { display: none; }
+    main { margin-left: 0; padding: 16px; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Auth splash guard -->
+<div id="auth-guard">
+  <div class="guard-logo">
+    <div class="mark">
+      <svg viewBox="0 0 18 18" fill="none">
+        <path d="M3 5h12M3 9h8M3 13h10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span>Edgeform <em>Media</em></span>
+  </div>
+  <div class="guard-spinner"></div>
+  <div class="guard-text">VERIFYING SESSION</div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-mark">
+      <svg viewBox="0 0 18 18" fill="none">
+        <path d="M3 5h12M3 9h8M3 13h10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="nav-name">Edgeform <em>Media</em></span>
+  </a>
+  <div class="nav-right">
+    <span class="nav-email" id="nav-email"></span>
+    <div class="nav-avatar" id="nav-avatar">—</div>
+    <button class="nav-signout" onclick="signOut()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- Layout -->
+<div class="layout">
+
+  <aside>
+    <div class="side-section">
+      <div class="side-label">Main</div>
+      <a class="side-item active" href="#">
+        <span class="side-icon">⬡</span> Dashboard
+      </a>
+      <a class="side-item" href="#">
+        <span class="side-icon">◈</span> Leads
+        <span class="side-badge live" id="badge-leads">—</span>
+      </a>
+      <a class="side-item" href="#">
+        <span class="side-icon">◇</span> Pipeline
+      </a>
+      <a class="side-item" href="#">
+        <span class="side-icon">◻</span> Clients
+      </a>
+    </div>
+    <div class="side-section">
+      <div class="side-label">Workspace</div>
+      <a class="side-item" href="#">
+        <span class="side-icon">✉</span> Emails
+      </a>
+      <a class="side-item" href="#">
+        <span class="side-icon">◷</span> Tasks
+        <span class="side-badge live">3</span>
+      </a>
+      <a class="side-item" href="#">
+        <span class="side-icon">▷</span> Reports
+      </a>
+    </div>
+    <div class="side-section">
+      <div class="side-label">Account</div>
+      <a class="side-item" href="#">
+        <span class="side-icon">◌</span> Settings
+      </a>
+      <a class="side-item" href="#" onclick="signOut(); return false;">
+        <span class="side-icon">→</span> Sign Out
+      </a>
+    </div>
+    <div class="side-spacer"></div>
+    <div class="side-version">v1.0.0 · crm.edgeform-media.com</div>
+  </aside>
+
+  <main>
+    <div class="page-head">
+      <div class="page-title" id="greeting">—</div>
+      <div class="page-sub"><span class="hi" id="today-str"></span> &nbsp;·&nbsp; Session active</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-bg-icon">◈</div>
+        <div class="kpi-label">Total Leads</div>
+        <div class="kpi-val" id="kpi-leads">—</div>
+        <div class="kpi-delta neutral" id="kpi-leads-sub">Loading…</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-bg-icon">◇</div>
+        <div class="kpi-label">Open Deals</div>
+        <div class="kpi-val">—</div>
+        <div class="kpi-delta neutral">Pipeline active</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-bg-icon">◷</div>
+        <div class="kpi-label">Tasks Due</div>
+        <div class="kpi-val">3</div>
+        <div class="kpi-delta down">2 overdue</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-bg-icon">✉</div>
+        <div class="kpi-label">Emails Sent</div>
+        <div class="kpi-val">—</div>
+        <div class="kpi-delta neutral">This week</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="two-col">
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">Recent Leads</span>
+          <button class="panel-link">View All →</button>
+        </div>
+        <table class="data">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Business</th>
+              <th>Status</th>
+              <th>Added</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody">
+            <tr>
+              <td colspan="4" style="text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:11px;padding:24px;">
+                Loading leads…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">Activity</span>
+          <button class="panel-link">All →</button>
+        </div>
+        <div class="feed">
+          <div class="feed-item">
+            <div class="feed-dot" style="background:var(--green)"></div>
+            <div class="feed-body">
+              <div class="feed-text">New inquiry from <strong>Marcus Rivera</strong> — Plumbing</div>
+              <div class="feed-time">2 hours ago</div>
+            </div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot" style="background:var(--blue)"></div>
+            <div class="feed-body">
+              <div class="feed-text">Email sent to <strong>Sandra Torres</strong> — proposal follow-up</div>
+              <div class="feed-time">5 hours ago</div>
+            </div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot" style="background:var(--orange)"></div>
+            <div class="feed-body">
+              <div class="feed-text"><strong>Task overdue:</strong> Call David Kim — HVAC website quote</div>
+              <div class="feed-time">Yesterday</div>
+            </div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot" style="background:var(--accent)"></div>
+            <div class="feed-body">
+              <div class="feed-text">Deal moved to <strong>Proposal Sent</strong> — Laura Mendez</div>
+              <div class="feed-time">3 days ago</div>
+            </div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot" style="background:var(--text-muted)"></div>
+            <div class="feed-body">
+              <div class="feed-text">Note logged on <strong>James Burke</strong> — went with competitor</div>
+              <div class="feed-time">2 weeks ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Status bar -->
+<div class="status-bar">
+  <div class="sb-item">
+    <div class="sb-dot" style="background:var(--green)"></div>
+    SYSTEM ONLINE
+  </div>
+  <div class="sb-item">
+    <div class="sb-dot" style="background:var(--accent)"></div>
+    <span id="sb-user">—</span>
+  </div>
+  <div class="sb-item" style="margin-left:auto;">
+    <span id="sb-clock"></span>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────
+const GAS_AUTH    = 'PASTE_YOUR_AUTH_GAS_URL_HERE';
+const GAS_CRM     = 'PASTE_YOUR_CRM_API_GAS_URL_HERE';
+const SESSION_KEY = 'edgeform_crm_session';
+const LOGIN_URL   = '/login/index.html';
+
+// ─── Session helpers ──────────────────────────────────────────
+function getSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; }
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+async function gasReq(url, payload) {
+  const r = await fetch(url + '?payload=' + encodeURIComponent(JSON.stringify(payload)));
+  return r.json();
+}
+
+// ─── Boot: verify session with GAS ───────────────────────────
+(async () => {
+  const session = getSession();
+
+  if (!session?.token) {
+    redirect();
+    return;
+  }
+
+  try {
+    const r = await gasReq(GAS_AUTH, { action: 'verifySession', token: session.token });
+
+    if (!r.ok) {
+      clearSession();
+      redirect();
+      return;
+    }
+
+    // Valid session — boot the app
+    initApp(session);
+
+  } catch (err) {
+    // If GAS is unreachable, fail safe = redirect to login
+    console.error('Session verify error:', err);
+    redirect();
+  }
+})();
+
+function redirect() {
+  window.location.href = LOGIN_URL;
+}
+
+// ─── App init ─────────────────────────────────────────────────
+function initApp(session) {
+  const email = session.email || '';
+  const name  = session.name  || email;
+  const first = name.split(' ')[0];
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+  // Nav
+  document.getElementById('nav-email').textContent = email;
+  document.getElementById('nav-avatar').textContent = initials;
+  document.getElementById('sb-user').textContent = email;
+
+  // Greeting
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting').textContent = `${greet}, ${first}.`;
+
+  // Date
+  document.getElementById('today-str').textContent = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric'
+  });
+
+  // Clock
+  function tick() {
+    document.getElementById('sb-clock').textContent = new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // Re-verify session every 5 min
+  setInterval(async () => {
+    const s = getSession();
+    if (!s?.token) { redirect(); return; }
+    const r = await gasReq(GAS_AUTH, { action: 'verifySession', token: s.token }).catch(() => null);
+    if (!r?.ok) { clearSession(); redirect(); }
+  }, 5 * 60 * 1000);
+
+  // Hide guard, show app
+  document.getElementById('auth-guard').style.display = 'none';
+  document.body.classList.add('ready');
+
+  // Load leads
+  loadLeads();
+}
+
+// ─── Load leads from GAS CRM API ─────────────────────────────
+async function loadLeads() {
+  try {
+    const r = await gasReq(GAS_CRM, { action: 'getLeads', limit: 5 });
+    if (r.ok && r.leads) {
+      renderLeads(r.leads);
+      document.getElementById('kpi-leads').textContent = r.total || r.leads.length;
+      document.getElementById('kpi-leads-sub').textContent = `${r.leads.length} recent`;
+      document.getElementById('badge-leads').textContent = r.total || r.leads.length;
+    }
+  } catch {
+    // GAS not wired yet — leave placeholder
+  }
+}
+
+function renderLeads(leads) {
+  const statusMap = {
+    new:         ['New',         'chip-purple'],
+    contacted:   ['Contacted',   'chip-blue'],
+    qualified:   ['Qualified',   'chip-green'],
+    unqualified: ['Unqualified', 'chip-muted'],
+    converted:   ['Converted',   'chip-green'],
+    lost:        ['Lost',        'chip-red'],
+    follow_up:   ['Follow-up',   'chip-orange'],
+  };
+
+  const tbody = document.getElementById('leads-tbody');
+  if (!leads.length) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:11px;padding:24px;">No leads yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = leads.map(l => {
+    const [label, cls] = statusMap[l.status] || ['Unknown', 'chip-muted'];
+    const initials = (l.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+    return `
+      <tr>
+        <td><div class="td-name"><div class="avi">${initials}</div>${l.name || '—'}</div></td>
+        <td style="color:var(--text-dim);font-size:11px;">${l.business || '—'}</td>
+        <td><span class="chip ${cls}">${label}</span></td>
+        <td style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">${date}</td>
+      </tr>`;
+  }).join('');
+}
+
+// ─── Sign out ─────────────────────────────────────────────────
+async function signOut() {
+  const s = getSession();
+  if (s?.token) {
+    // Invalidate server-side session
+    gasReq(GAS_AUTH, { action: 'logout', token: s.token }).catch(() => {});
+  }
+  clearSession();
+  window.location.href = LOGIN_URL;
+}
+</script>
+</body>
+</html>
