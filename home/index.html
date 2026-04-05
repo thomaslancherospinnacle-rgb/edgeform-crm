@@ -401,7 +401,7 @@
 const GAS_AUTH     = 'https://script.google.com/macros/s/AKfycbyjrnqEYT8FJVR-FYdfl5DXXgOk_Tj1DGbPaymjJ7TvJ2-aXWR7dXH4NAheO789V3I/exec';
 const EMAIL_WORKER = 'https://email.edgeformmedia.workers.dev';
 const SESSION_KEY  = 'edgeform_crm_session';
-const LOGIN_URL    = '/login/index.html';
+const LOGIN_URL    = '/login/';
 // Sheets CSV endpoint — reads directly from the published spreadsheet
 const SHEET_ID     = '1GAu9V_Qui5H9jFkULEY7T9HaqCKV_v9t3wjeFnnE96E';
 
@@ -418,15 +418,24 @@ async function gasReq(url, payload) {
   return r.json();
 }
 
-// ─── Boot ─────────────────────────────────────────────────────
+// ─── Boot — retry up to 3x to handle GAS cold starts ─────────
 (async () => {
   const session = getSession();
   if (!session?.token) { redirect(); return; }
-  try {
-    const r = await gasReq(GAS_AUTH, { action: 'verifySession', token: session.token });
-    if (!r.ok) { clearSession(); redirect(); return; }
-    initApp(session);
-  } catch { redirect(); }
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const r = await gasReq(GAS_AUTH, { action: 'verifySession', token: session.token });
+      if (r.ok) { initApp(session); return; }
+      // GAS is up but session is genuinely invalid
+      clearSession(); redirect(); return;
+    } catch {
+      // GAS cold start / network blip — wait then retry
+      if (attempt < 3) await new Promise(res => setTimeout(res, 2500 * attempt));
+    }
+  }
+  // 3 failed attempts — redirect without clearing session so user can retry
+  redirect();
 })();
 
 function initApp(session) {
