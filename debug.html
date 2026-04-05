@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Auth Debug</title>
+<style>
+  body { background: #0a0a0a; color: #e0e0e0; font-family: monospace; padding: 24px; }
+  h2 { color: #a99fff; margin-bottom: 16px; }
+  button { background: #7b6cff; color: #fff; border: none; padding: 8px 16px; margin: 4px; cursor: pointer; border-radius: 4px; font-family: monospace; }
+  button:hover { opacity: 0.85; }
+  pre { background: #111; border: 1px solid #333; padding: 16px; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; margin-top: 12px; font-size: 12px; }
+  .ok { color: #3dffa0; } .err { color: #ff5c5c; }
+  input { background: #1a1a1a; border: 1px solid #333; color: #e0e0e0; padding: 6px 10px; font-family: monospace; border-radius: 4px; width: 320px; margin: 4px; }
+  label { font-size: 11px; color: #666; display: block; margin-top: 8px; }
+</style>
+</head>
+<body>
+<h2>🔍 Auth Debug</h2>
+
+<div>
+  <button onclick="checkSession()">1. Check stored session</button>
+  <button onclick="testVerify()">2. Test verifySession with stored token</button>
+  <button onclick="clearAndShow()">3. Clear session + show what was stored</button>
+</div>
+
+<div style="margin-top:16px;">
+  <label>Manual token test:</label>
+  <input id="manual-token" placeholder="paste token here">
+  <button onclick="testManualToken()">Test token</button>
+</div>
+
+<div style="margin-top:16px;">
+  <label>Test login directly:</label>
+  <input id="test-email" placeholder="email">
+  <input id="test-pw" placeholder="password" type="password">
+  <button onclick="testLogin()">Test login</button>
+</div>
+
+<pre id="out">Waiting for action…</pre>
+
+<script>
+const GAS = 'https://script.google.com/macros/s/AKfycbyjrnqEYT8FJVR-FYdfl5DXXgOk_Tj1DGbPaymjJ7TvJ2-aXWR7dXH4NAheO789V3I/exec';
+const KEY = 'edgeform_crm_session';
+
+function out(data, isErr) {
+  const el = document.getElementById('out');
+  el.className = isErr ? 'err' : 'ok';
+  el.textContent = JSON.stringify(data, null, 2);
+}
+
+async function gas(payload) {
+  const url = GAS + '?payload=' + encodeURIComponent(JSON.stringify(payload));
+  out('Calling GAS: ' + url, false);
+  const r = await fetch(url);
+  return r.json();
+}
+
+function checkSession() {
+  const raw = localStorage.getItem(KEY);
+  if (!raw) { out('No session in localStorage', true); return; }
+  try {
+    const s = JSON.parse(raw);
+    out({ stored_session: s, token_length: s.token?.length }, false);
+  } catch(e) {
+    out('Could not parse session: ' + e.message, true);
+  }
+}
+
+async function testVerify() {
+  const raw = localStorage.getItem(KEY);
+  if (!raw) { out('No session stored — log in first', true); return; }
+  const s = JSON.parse(raw);
+  out('Sending verifySession with token: ' + s.token?.substring(0,16) + '…', false);
+  try {
+    const r = await gas({ action: 'verifySession', token: s.token });
+    out(r, !r.ok);
+  } catch(e) {
+    out('FETCH ERROR: ' + e.message, true);
+  }
+}
+
+async function testManualToken() {
+  const token = document.getElementById('manual-token').value.trim();
+  if (!token) { out('Enter a token', true); return; }
+  try {
+    const r = await gas({ action: 'verifySession', token });
+    out(r, !r.ok);
+  } catch(e) {
+    out('FETCH ERROR: ' + e.message, true);
+  }
+}
+
+async function testLogin() {
+  const email = document.getElementById('test-email').value.trim();
+  const password = document.getElementById('test-pw').value;
+  if (!email || !password) { out('Enter email and password', true); return; }
+  try {
+    const r = await gas({ action: 'login', email, password });
+    out(r, !r.ok);
+    if (r.ok) {
+      localStorage.setItem(KEY, JSON.stringify({ token: r.token, email, name: r.name }));
+      out({ ...r, note: 'Session saved to localStorage!' }, false);
+    }
+  } catch(e) {
+    out('FETCH ERROR: ' + e.message, true);
+  }
+}
+
+function clearAndShow() {
+  const raw = localStorage.getItem(KEY);
+  localStorage.removeItem(KEY);
+  out({ cleared: true, was: raw ? JSON.parse(raw) : null }, false);
+}
+</script>
+</body>
+</html>
