@@ -398,11 +398,11 @@
 </div>
 
 <script>
-const GAS_AUTH     = 'https://script.google.com/macros/s/AKfycbyjrnqEYT8FJVR-FYdfl5DXXgOk_Tj1DGbPaymjJ7TvJ2-aXWR7dXH4NAheO789V3I/exec';
-const GAS_SUBMITS  = 'https://script.google.com/macros/s/AKfycbxHw65LmydBEOBaYvsyUwj8UJqovXU116eU0RJ0pXsdIBNCAFrtjZpRVLrXSpJBzUilnA/exec';
+const GAS_AUTH     = 'https://script.google.com/macros/s/AKfycbxTvgL1RopUmsYkA3okiWVeZcsuV0lMo6eOEJ7RwC1nQi2CJlBLj2QHBt18ha7YG_3k/exec';
+const GAS_SUBMITS  = 'https://script.google.com/macros/s/AKfycbwNQfLtAOGamQ4hE2Prpxj9ELdOi2l1Pot111HiCxd8zdxSsZMU808Xk21uh0soimJ1gw/exec';
 const EMAIL_WORKER = 'https://email.edgeformmedia.workers.dev';
 const SESSION_KEY  = 'edgeform_crm_session';
-const LOGIN_URL    = '/login/';
+const LOGIN_URL    = '/login/index.html';
 // Sheets CSV endpoint — reads directly from the published spreadsheet
 const SHEET_ID     = '1GAu9V_Qui5H9jFkULEY7T9HaqCKV_v9t3wjeFnnE96E';
 
@@ -428,15 +428,20 @@ async function gasReq(url, payload) {
     try {
       const r = await gasReq(GAS_AUTH, { action: 'verifySession', token: session.token });
       if (r.ok) { initApp(session); return; }
-      // GAS is up but session is genuinely invalid
+      // GAS responded ok:false — session genuinely invalid, clear and redirect
       clearSession(); redirect(); return;
     } catch {
-      // GAS cold start / network blip — wait then retry
-      if (attempt < 3) await new Promise(res => setTimeout(res, 2500 * attempt));
+      // Network/cold start error — wait and retry
+      if (attempt < 3) await new Promise(res => setTimeout(res, 3000 * attempt));
     }
   }
-  // 3 failed attempts — redirect without clearing session so user can retry
-  redirect();
+  // All retries failed due to network — don't clear session, show retry UI
+  document.getElementById('auth-guard').innerHTML = `
+    <div style="text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:13px;color:#9898a8;margin-bottom:16px;">Could not reach auth server.</div>
+      <button onclick="window.location.reload()" style="background:#7b6cff;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;">Retry</button>
+      <button onclick="window.location.href=LOGIN_URL" style="background:none;color:#55556a;border:1px solid #22222c;padding:10px 24px;border-radius:8px;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;margin-left:8px;">Back to Login</button>
+    </div>`;
 })();
 
 function initApp(session) {
