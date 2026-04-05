@@ -398,7 +398,8 @@
 </div>
 
 <script>
-const GAS_AUTH     = 'https://script.google.com/macros/s/AKfycbw66yMW_IOwXIs1pZvuBobDKl05tADDrsODae_I37BxY2JUhZG1oPuP9uGxfHq0_bdM/exec';
+const GAS_AUTH     = 'https://script.google.com/macros/s/AKfycbyjrnqEYT8FJVR-FYdfl5DXXgOk_Tj1DGbPaymjJ7TvJ2-aXWR7dXH4NAheO789V3I/exec';
+const GAS_SUBMITS  = 'https://script.google.com/macros/s/AKfycbxHw65LmydBEOBaYvsyUwj8UJqovXU116eU0RJ0pXsdIBNCAFrtjZpRVLrXSpJBzUilnA/exec';
 const EMAIL_WORKER = 'https://email.edgeformmedia.workers.dev';
 const SESSION_KEY  = 'edgeform_crm_session';
 const LOGIN_URL    = '/login/';
@@ -488,34 +489,23 @@ function showPage(name) {
   if (navEl) navEl.classList.add('active');
 }
 
-// ─── Load submissions via Google Sheets gviz/tq ───────────────
+// ─── Load submissions via GAS getAll ─────────────────────────
 async function loadSubmits() {
   document.getElementById('submit-list').innerHTML =
     '<div class="state-box"><div class="state-icon">◈</div>Loading…</div>';
 
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Leads`;
-
   try {
-    const r    = await fetch(url);
-    const text = await r.text();
-    // Strip Google's JSONP wrapper
-    const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
+    const r    = await fetch(GAS_SUBMITS + '?action=getAll');
+    const data = await r.json();
 
-    const cols = json.table.cols.map(c => c.label);
-    const rows = (json.table.rows || []).map(row => {
-      const obj = {};
-      (row.c || []).forEach((cell, i) => {
-        obj[cols[i]] = cell ? (cell.f !== undefined ? cell.f : cell.v ?? '') : '';
-      });
-      return obj;
-    }).filter(r => r['Name'] && String(r['Name']).trim());
+    if (!data.ok) throw new Error(data.error || 'GAS error');
 
-    allSubmits = rows;
-    renderSubmits(rows);
-    updateDashboard(rows);
+    allSubmits = data.rows || [];
+    renderSubmits(allSubmits);
+    updateDashboard(allSubmits);
   } catch (err) {
     document.getElementById('submit-list').innerHTML =
-      `<div class="state-box"><div class="state-icon">✕</div>Failed to load.<br><span style="font-size:10px;">${err.message}</span><br><br>Make sure the sheet is shared (Anyone with link can view).</div>`;
+      `<div class="state-box"><div class="state-icon">✕</div>Failed to load submissions.<br><span style="font-size:10px;">${err.message}</span></div>`;
   }
 }
 
@@ -575,8 +565,18 @@ function renderFiltered(rows) {
     const statusChip = status === 'complete'
       ? '<span class="chip chip-green">Complete</span>'
       : '<span class="chip chip-muted">Partial</span>';
-    const sketchEl   = sketch
-      ? `<a class="sketch-link" href="${sketch}" target="_blank">🎨 View Sketch</a>`
+    const thumb     = r['Sketch Thumb URL'] || '';
+    const sketchUrl = sketch || '';
+    const sketchEl  = sketchUrl
+      ? `<div style="margin-bottom:12px;">
+           <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Sketch</div>
+           <a href="${sketchUrl}" target="_blank" style="display:inline-block;">
+             <img src="${thumb}" alt="Sketch"
+               style="max-width:100%;max-height:280px;border-radius:8px;border:1px solid var(--border);object-fit:contain;background:var(--surface2);display:block;"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
+             <a class="sketch-link" href="${sketchUrl}" target="_blank" style="display:none;">🎨 Open in Drive</a>
+           </a>
+         </div>`
       : `<span style="font-family:var(--mono);font-size:11px;color:var(--text-muted);">No sketch attached</span>`;
 
     return `<div class="submit-card" id="sc-${i}">
