@@ -772,7 +772,7 @@ nav {
         <select class="list-filter" id="lead-filter-web" onchange="filterLeads()">
           <option value="">All</option>
           <option value="Yes">Has Website</option>
-          <option value="No">No Website</option>
+          <option value="No" selected>No Website</option>
         </select>
         <span class="list-count" id="leads-count">— leads</span>
         <button class="refresh-btn" onclick="loadLeads()">↻</button>
@@ -1040,6 +1040,12 @@ async function loadLeads() {
       STAGES.filter(s => stages.includes(s)).map(s =>
         `<option value="${s}">${s}</option>`).join('');
 
+    // Default to No Website filter on load
+    filteredLeads = allLeads.filter(l => {
+      const val = (l['Has Website'] || l['hasWebsite'] || '').toString().trim().toLowerCase();
+      return val !== 'yes';
+    });
+
     renderLeadList(filteredLeads);
     renderPipeline();
 
@@ -1099,8 +1105,10 @@ function filterLeads() {
     const cat     = (l['Category']||l['category']||'').toLowerCase();
     const matchQ  = !q || [name,city,phone,cat].join(' ').includes(q);
     const matchS  = !stage || (l['Stage']||l['stage']) === stage;
-    const matchW  = !web || (l['Has Website']||l['hasWebsite']||'').toString().includes(web === 'Yes' ? 'Yes' : '') ||
-                   (web === 'No' && !(l['Has Website']||'').toString().includes('Yes'));
+    const hasWebVal = (l['Has Website']||l['hasWebsite']||'').toString().trim().toLowerCase();
+    const matchW  = !web ||
+      (web === 'Yes' && hasWebVal === 'yes') ||
+      (web === 'No'  && hasWebVal !== 'yes');
     return matchQ && matchS && matchW;
   });
 
