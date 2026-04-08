@@ -2358,9 +2358,11 @@ function submitToGAS(data) {
 
   function probeImages(index, onDone) {
     var src = 'image' + index + '.png';
-    var testImg = new Image();
-    testImg.onload  = function() { loadedSrcs.push(src); probeImages(index + 1, onDone); };
-    testImg.onerror = function() { onDone(); };
+    var testImg = document.createElement('img');
+    testImg.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
+    document.body.appendChild(testImg);
+    testImg.onload  = function() { document.body.removeChild(testImg); loadedSrcs.push(src); probeImages(index + 1, onDone); };
+    testImg.onerror = function() { document.body.removeChild(testImg); onDone(); };
     testImg.src = src;
   }
 
