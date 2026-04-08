@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{COMPANY_NAME}} — Professional {{INDUSTRY_TITLE}} Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family={{FONT_BODY_GOOG}}:wght@300;400;500;600;700;800&family={{FONT_DISPLAY_GOOG}}:wght@700;800;900&display=swap" rel="stylesheet">
+<script>
+// Early stub — ensures onclick="showPage(...)" never throws before the main
+// script block at the bottom of <body> has executed.
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var t = document.getElementById('page-' + id);
+  if (t) t.classList.add('active');
+  document.querySelectorAll('.nav-desktop .nav-link').forEach(function(l){
+    l.classList.toggle('active', l.dataset.nav === id);
+  });
+  var mob = document.getElementById('navMobile');
+  if (mob) mob.classList.remove('open');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Let the main script update its own currentPage tracker if it's loaded
+  if (typeof _showPageFull === 'function') _showPageFull(id);
+}
+</script>
+<style>
+:root {
+  --accent: {{COLOR_ACCENT}};
+  --accent-light: {{COLOR_ACCENT_LIGHT}};
+  --accent-hover: {{COLOR_ACCENT_HOVER}};
+  --text-primary: #1a1a1a;
+  --text-secondary: #5a5a5a;
+  --text-muted: #8a8a8a;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f8f6;
+  --bg-tertiary: #f0efed;
+  --border: #e5e4e1;
+  --border-light: #f0efed;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+  --font-body: '{{FONT_BODY}}', sans-serif;
+  --font-display: '{{FONT_DISPLAY}}', serif;
+  --max-width: 1140px;
+  --nav-height: 72px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); color: var(--text-primary); background: var(--bg-primary); -webkit-font-smoothing: antialiased; }
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, textarea, select { font-family: inherit; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes checkPop { 0% { transform:scale(0); } 60% { transform:scale(1.2); } 100% { transform:scale(1); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.fade-up { animation: fadeUp .6s ease both; }
+.fade-up-1 { animation-delay:.1s; }
+.fade-up-2 { animation-delay:.2s; }
+.fade-up-3 { animation-delay:.3s; }
+.fade-up-4 { animation-delay:.4s; }
+
+/* ─── NAV ─── */
+.nav { position:sticky; top:0; left:0; right:0; z-index:100; background:rgba(255,255,255,.96); backdrop-filter:blur(16px); border-bottom:1px solid var(--border-light); height:var(--nav-height); }
+.nav-inner { max-width:var(--max-width); margin:0 auto; padding:0 24px; height:100%; display:flex; align-items:center; justify-content:space-between; }
+.nav-logo { display:flex; align-items:center; gap:10px; cursor:pointer; }
+.nav-logo-icon { width:38px; height:38px; background:var(--accent); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; }
+.nav-logo-text { font-family:var(--font-display); font-weight:800; font-size:22px; letter-spacing:-.5px; }
+.nav-logo-sub { font-size:10px; color:var(--text-muted); letter-spacing:2px; text-transform:uppercase; font-weight:500; margin-top:-2px; }
+.nav-desktop { display:flex; gap:4px; align-items:center; }
+.nav-link { padding:8px 16px; border-radius:8px; font-size:14px; font-weight:500; color:var(--text-secondary); transition:all .2s; }
+.nav-link:hover { background:var(--bg-secondary); color:var(--text-primary); }
+.nav-link.active { background:var(--accent-light); color:var(--accent); }
+.nav-cta { padding:10px 22px; border-radius:8px; font-size:14px; font-weight:600; color:#fff; background:var(--accent); transition:all .2s; margin-left:8px; }
+.nav-cta:hover { background:var(--accent-hover); transform:translateY(-1px); box-shadow:var(--shadow-md); }
+.nav-hamburger { display:none; padding:8px; }
+.nav-mobile { display:none; position:absolute; top:var(--nav-height); left:0; right:0; background:var(--bg-primary); border-bottom:1px solid var(--border); padding:12px; z-index:99; animation:slideDown .3s ease; }
+.nav-mobile.open { display:block; }
+.nav-mobile button { display:block; width:100%; text-align:left; padding:12px 16px; border-radius:8px; font-size:15px; font-weight:500; color:var(--text-secondary); }
+.nav-mobile button:hover { background:var(--bg-secondary); }
+@media (max-width:768px) {
+  .nav-desktop { display:none; }
+  .nav-hamburger { display:block; }
+}
+
+/* ─── TOP CONTACT BAR ─── */
+.top-bar {
+  background: #1a1a1a;
+  color: rgba(255,255,255,.8);
+  font-size: 13px;
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.top-bar-left { display:flex; align-items:center; gap:6px; }
+.top-bar-right { display:flex; align-items:center; gap:20px; }
+.top-bar-item { display:flex; align-items:center; gap:6px; color:rgba(255,255,255,.85); }
+.top-bar-item svg { opacity:.7; flex-shrink:0; }
+@media (max-width:640px) { .top-bar-right { gap:12px; } .top-bar { font-size:12px; } }
+
+/* ─── PARALLAX HERO IMAGE ─── */
+.site-hero-wrap {
+  position: relative;
+  height: calc(92vh);
+  min-height: 560px;
+  max-height: 860px;
+  overflow: hidden;
+  z-index: 0;
+  /* hero sits below the nav bar, which is now position:sticky not fixed */
+}
+.site-hero-img {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  bottom: -30%;
+  width: 100%;
+  height: 140%;
+  object-fit: cover;
+  object-position: center center;
+  will-change: transform;
+  display: block;
+  opacity: 0;
+  transition: opacity .6s ease;
+}
+.site-hero-img.loaded { opacity: 1; }
+/* Dark overlay for readability */
+.site-hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgba(0,0,0,0.72) 0%,
+    rgba(0,0,0,0.55) 50%,
+    rgba(0,0,0,0.25) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+/* Main hero content: left headline + right form */
+.site-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  pointer-events: none;
+}
+.site-hero-split {
+  max-width: var(--max-width);
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 48px;
+  align-items: center;
+  pointer-events: auto;
+}
+/* Left: headline block */
+.hero-left-text { color: #fff; }
+.hero-left-text .hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; letter-spacing: .5px;
+  color: var(--accent); text-transform: uppercase;
+  background: rgba(255,255,255,.1); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.15);
+  padding: 6px 14px; border-radius: 100px;
+  margin-bottom: 22px;
+}
+.hero-left-text h1 {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.5vw, 62px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  color: #fff;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 20px rgba(0,0,0,.3);
+}
+.hero-left-text h1 em { font-style: normal; color: var(--accent); }
+.hero-left-text .hero-sub {
+  font-size: 16px;
+  color: rgba(255,255,255,.82);
+  line-height: 1.7;
+  margin-bottom: 32px;
+  max-width: 440px;
+}
+.hero-trust-items { display:flex; flex-direction:column; gap:10px; margin-bottom:32px; }
+.hero-trust-item { display:flex; align-items:center; gap:10px; font-size:14px; color:rgba(255,255,255,.9); font-weight:500; }
+.hero-trust-check { width:20px; height:20px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.hero-trust-check svg { color:#fff; }
+.hero-social-proof { display:flex; align-items:center; gap:14px; }
+.hero-avatars { display:flex; }
+.hero-avatars img, .hero-avatar-placeholder {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,.8);
+  margin-left: -10px; background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: var(--accent);
+  overflow: hidden;
+}
+.hero-avatars .hero-avatar-placeholder:first-child { margin-left: 0; }
+.hero-proof-text { font-size: 13px; color: rgba(255,255,255,.85); line-height: 1.4; }
+.hero-proof-text strong { color: #fff; }
+/* Right: lead capture form */
+.hero-lead-form {
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px 32px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.25);
+}
+.hero-lead-form .form-title {
+  font-size: 16px; color: var(--text-secondary);
+  text-align: center; margin-bottom: 24px; font-weight: 500;
+}
+.hero-lead-form .form-group { margin-bottom: 14px; }
+.hero-lead-form .form-group label {
+  display: block; font-size: 13px; font-weight: 600;
+  color: var(--text-secondary); margin-bottom: 6px;
+}
+.hero-lead-form .form-group input {
+  width: 100%; padding: 13px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius); font-size: 15px;
+  color: var(--text-primary); background: #fafaf9;
+  outline: none; transition: border-color .2s;
+}
+.hero-lead-form .form-group input:focus { border-color: var(--accent); background: #fff; }
+.hero-lead-form .form-group input::placeholder { color: var(--text-muted); }
+.hero-consent { display:flex; align-items:flex-start; gap:10px; margin-bottom:18px; }
+.hero-consent input[type=checkbox] { margin-top:2px; accent-color:var(--accent); flex-shrink:0; }
+.hero-consent label { font-size:12px; color:var(--text-muted); line-height:1.5; }
+.hero-form-btn {
+  width: 100%; padding: 15px;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+  font-family: inherit;
+}
+.hero-form-btn:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+
+.site-hero-wrap.hero-missing {
+  height: 0; min-height: 0; overflow: hidden;
+}
+.site-hero-title-wrap { display: none; } /* legacy, not used in new layout */
+.site-hero-logo { display: none; }
+
+@media (max-width: 900px) {
+  .site-hero-split { grid-template-columns: 1fr; }
+  .hero-lead-form { max-width: 480px; margin: 0 auto; }
+  .site-hero-wrap { height: auto; min-height: 0; max-height: none; }
+  .site-hero-overlay { position: relative; padding: 60px 24px; }
+  .site-hero-img { position: fixed; opacity: 0; } /* hide on mobile, use bg color */
+  .site-hero-wrap { background: #2a2a2a; }
+}
+@media (max-width: 600px) {
+  .hero-left-text h1 { font-size: clamp(28px, 8vw, 40px); }
+  .hero-lead-form { padding: 28px 20px; border-radius: 14px; }
+}
+
+/* ─── HERO ─── */
+.hero { padding:100px 24px 80px; text-align:center; position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:-200px; right:-200px; width:500px; height:500px; background:var(--accent-light); border-radius:50%; opacity:.4; }
+.hero::after { content:''; position:absolute; bottom:-150px; left:-100px; width:400px; height:400px; background:var(--bg-tertiary); border-radius:50%; opacity:.5; }
+.hero-inner { position:relative; z-index:1; max-width:720px; margin:0 auto; }
+.hero-badge { display:inline-flex; align-items:center; gap:6px; background:var(--accent-light); color:var(--accent); padding:6px 16px; border-radius:100px; font-size:13px; font-weight:600; margin-bottom:28px; }
+.hero-badge-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:pulse 2s infinite; }
+.hero h1 { font-family:var(--font-display); font-size:clamp(38px,5.5vw,64px); font-weight:900; line-height:1.08; letter-spacing:-1.5px; margin-bottom:20px; }
+.hero h1 em { font-style:normal; color:var(--accent); }
+.hero p { font-size:18px; color:var(--text-secondary); line-height:1.7; max-width:520px; margin:0 auto 36px; }
+.hero-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.btn-primary { display:inline-flex; align-items:center; gap:8px; padding:14px 32px; background:var(--accent); color:#fff; border-radius:var(--radius); font-size:15px; font-weight:600; transition:all .25s; }
+.btn-primary:hover { background:var(--accent-hover); transform:translateY(-2px); box-shadow:0 8px 24px rgba(26,92,58,.18); }
+.btn-secondary { display:inline-flex; align-items:center; gap:8px; padding:14px 32px; background:var(--bg-primary); color:var(--text-primary); border:1.5px solid var(--border); border-radius:var(--radius); font-size:15px; font-weight:500; transition:all .2s; }
+.btn-secondary:hover { border-color:var(--text-muted); background:var(--bg-secondary); }
+
+/* ─── STATS ─── */
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); max-width:700px; margin:64px auto 0; border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); }
+.stat { background:var(--bg-primary); padding:28px 16px; text-align:center; }
+.stat-value { font-family:var(--font-display); font-size:28px; font-weight:800; }
+.stat-label { font-size:12px; color:var(--text-muted); margin-top:4px; font-weight:500; text-transform:uppercase; letter-spacing:.5px; }
+@media (max-width:600px) { .stats { grid-template-columns:repeat(2,1fr); } }
+
+/* ─── SECTIONS ─── */
+.section { padding:80px 24px; }
+.section-alt { background:var(--bg-secondary); }
+.section-inner { max-width:var(--max-width); margin:0 auto; }
+.section-header { text-align:center; margin-bottom:48px; }
+.section-header h2 { font-family:var(--font-display); font-size:36px; font-weight:800; margin-bottom:12px; letter-spacing:-.5px; }
+.section-header p { font-size:16px; color:var(--text-secondary); max-width:480px; margin:0 auto; line-height:1.6; }
+
+/* ─── SERVICE CARDS (homepage — image style) ─── */
+.services-eyebrow { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--accent); margin-bottom:14px; }
+.services-big-headline { font-family:var(--font-display); font-size:clamp(32px,4vw,56px); font-weight:900; letter-spacing:-1.5px; line-height:1.05; text-transform:uppercase; margin-bottom:16px; }
+.services-img-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:24px; margin-top:8px; }
+.svc-img-card { background:var(--bg-primary); border:1px solid var(--border-light); border-radius:var(--radius-lg); overflow:hidden; display:flex; flex-direction:column; transition:all .3s; }
+.svc-img-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+.svc-img-thumb {
+  width:100%; aspect-ratio:16/9; object-fit:cover; display:block;
+  background:var(--bg-tertiary);
+}
+.svc-img-thumb-placeholder {
+  width:100%; aspect-ratio:16/9; background:var(--bg-tertiary);
+  display:flex; align-items:center; justify-content:center; font-size:48px;
+}
+.svc-img-body { padding:24px 28px 28px; flex:1; display:flex; flex-direction:column; }
+.svc-img-body h3 { font-size:19px; font-weight:800; margin-bottom:10px; text-align:center; }
+.svc-img-body > p { font-size:14px; color:var(--text-secondary); line-height:1.6; text-align:center; margin-bottom:16px; }
+.svc-img-bullets { list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:24px; flex:1; }
+.svc-img-bullets li { display:flex; align-items:flex-start; gap:10px; font-size:13.5px; color:var(--text-secondary); line-height:1.4; }
+.svc-img-bullets li::before { content:'✓'; color:var(--accent); font-weight:700; font-size:14px; flex-shrink:0; margin-top:1px; }
+.svc-img-cta { display:block; width:100%; padding:12px; border-radius:var(--radius); background:var(--accent); color:#fff; font-size:14px; font-weight:700; text-align:center; border:none; cursor:pointer; font-family:inherit; transition:all .2s; }
+.svc-img-cta:hover { background:var(--accent-hover); transform:translateY(-1px); }
+
+/* ─── VIDEO TESTIMONIALS ─── */
+.testimonials-section { padding:80px 24px; background:var(--bg-secondary); }
+.testimonials-inner { max-width:var(--max-width); margin:0 auto; }
+.testimonials-headline { font-family:var(--font-display); font-size:clamp(28px,4vw,48px); font-weight:900; letter-spacing:-1px; text-align:center; margin-bottom:8px; }
+.testimonials-accent-lines { text-align:center; margin-bottom:12px; }
+.testimonials-accent-lines span { display:block; font-family:var(--font-display); font-size:clamp(20px,3vw,34px); font-weight:800; color:var(--accent); line-height:1.3; }
+.testimonials-sub { text-align:center; font-size:15px; font-weight:600; color:var(--text-primary); margin-bottom:8px; }
+.testimonials-video-label { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--accent); font-weight:600; margin-bottom:40px; }
+.testimonials-video-label::before { content:'▶'; font-size:10px; }
+.testimonials-header-center { display:flex; flex-direction:column; align-items:center; }
+.testimonials-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
+.tst-card { background:var(--bg-primary); border:1px solid var(--border-light); border-radius:var(--radius-lg); overflow:hidden; transition:all .3s; }
+.tst-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); }
+.tst-video-wrap {
+  position:relative; width:100%; aspect-ratio:16/9;
+  background:#111; overflow:hidden; cursor:pointer;
+}
+.tst-video-wrap video {
+  width:100%; height:100%; object-fit:cover; display:block;
+  pointer-events:none;
+}
+.tst-play-overlay {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.3);
+  transition:opacity .25s;
+}
+.tst-play-overlay.hidden { opacity:0; pointer-events:none; }
+.tst-play-btn {
+  width:58px; height:58px; border-radius:50%;
+  background:rgba(255,0,0,.92);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+  transition:transform .2s;
+  flex-shrink:0;
+}
+.tst-play-btn svg { margin-left:3px; }
+.tst-video-wrap:hover .tst-play-btn { transform:scale(1.1); }
+.tst-badge {
+  position:absolute; top:12px; right:12px;
+  background:rgba(0,0,0,.75); backdrop-filter:blur(4px);
+  color:#fff; font-size:11px; font-weight:600;
+  padding:4px 10px; border-radius:100px;
+  display:flex; align-items:center; gap:5px;
+}
+.tst-badge::before { content:'👥'; font-size:10px; }
+.tst-body { padding:16px 18px; }
+.tst-stars { color:var(--accent); font-size:14px; letter-spacing:1px; margin-bottom:4px; }
+.tst-score { font-size:18px; font-weight:800; margin-bottom:2px; }
+.tst-location { font-size:12px; color:var(--accent); font-weight:600; margin-bottom:8px; }
+.tst-quote { font-size:13px; color:var(--text-secondary); line-height:1.55; font-style:italic; }
+.testimonials-more-btn {
+  display:block; margin:32px auto 0;
+  padding:12px 36px; border-radius:var(--radius);
+  border:1.5px solid var(--border); background:var(--bg-primary);
+  font-size:14px; font-weight:600; color:var(--text-secondary);
+  cursor:pointer; transition:all .2s; font-family:inherit;
+}
+.testimonials-more-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-light); }
+.testimonials-more-btn.hidden { display:none; }
+.tst-card.tst-overflow { display:none; }
+.tst-card.tst-overflow.tst-shown { display:block; }
+.testimonials-section.tst-empty { display:none; }
+
+/* ─── SERVICE CARDS (original icon style — still used on /services page) ─── */
+.services-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.service-card { background:var(--bg-primary); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:28px; transition:all .3s; }
+.service-card:hover { border-color:var(--accent); transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+.service-card-icon { width:48px; height:48px; background:var(--accent-light); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:16px; }
+.service-card h3 { font-size:17px; font-weight:700; margin-bottom:8px; }
+.service-card p { font-size:14px; color:var(--text-secondary); line-height:1.6; margin-bottom:14px; }
+.service-card-price { font-size:14px; font-weight:700; color:var(--accent); }
+.service-card-duration { font-size:12px; color:var(--text-muted); margin-top:4px; }
+
+/* ─── INQUIRY WIDGET (homepage) ─── */
+.inquiry-section { padding:0 24px 80px; position:relative; z-index:1; margin-top:-20px; }
+.inquiry-card { max-width:680px; margin:0 auto; background:var(--bg-primary); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:36px; box-shadow:var(--shadow-lg); }
+.inquiry-card h3 { font-family:var(--font-display); font-size:24px; font-weight:800; text-align:center; margin-bottom:6px; }
+.inquiry-card .subtitle { font-size:14px; color:var(--text-secondary); text-align:center; margin-bottom:24px; }
+.inquiry-type-selector { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:24px; }
+.inquiry-type-btn { padding:14px 10px; border-radius:var(--radius); border:1.5px solid var(--border); background:var(--bg-primary); text-align:center; cursor:pointer; transition:all .2s; }
+.inquiry-type-btn:hover { border-color:var(--accent); }
+.inquiry-type-btn.selected { border-color:var(--accent); background:var(--accent-light); }
+.inquiry-type-btn .iq-icon { font-size:22px; margin-bottom:4px; }
+.inquiry-type-btn .iq-label { font-size:13px; font-weight:600; color:var(--text-primary); }
+.inquiry-type-btn .iq-desc { font-size:11px; color:var(--text-muted); margin-top:2px; }
+.inquiry-type-btn.selected .iq-label { color:var(--accent); }
+
+/* ─── BOOKING ─── */
+.booking-container { max-width:860px; margin:0 auto; }
+.booking-mode-toggle { display:flex; gap:8px; justify-content:center; margin-bottom:32px; }
+.booking-mode-btn { padding:10px 28px; border-radius:100px; font-size:14px; font-weight:600; border:1.5px solid var(--border); background:var(--bg-primary); color:var(--text-secondary); transition:all .2s; cursor:pointer; }
+.booking-mode-btn:hover { border-color:var(--accent); color:var(--accent); }
+.booking-mode-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+.booking-steps { display:flex; justify-content:center; gap:8px; margin-bottom:40px; }
+.booking-step { display:flex; align-items:center; gap:8px; }
+.booking-step-num { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; background:var(--bg-tertiary); color:var(--text-muted); transition:all .3s; }
+.booking-step-num.active { background:var(--accent); color:#fff; }
+.booking-step-num.done { background:var(--accent-light); color:var(--accent); }
+.booking-step-label { font-size:14px; color:var(--text-muted); font-weight:500; }
+.booking-step-label.active { color:var(--text-primary); }
+.booking-step-line { width:40px; height:2px; background:var(--border); border-radius:1px; }
+.booking-step-line.done { background:var(--accent); }
+
+.cal-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+@media (max-width:700px) { .cal-grid { grid-template-columns:1fr; } }
+.cal-panel { background:var(--bg-primary); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:24px; }
+.cal-nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.cal-nav button { background:var(--bg-secondary); border:1px solid var(--border); width:34px; height:34px; border-radius:8px; font-size:16px; cursor:pointer; color:var(--text-primary); }
+.cal-nav span { font-weight:600; font-size:16px; }
+.cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:8px; }
+.cal-weekdays span { font-size:12px; color:var(--text-muted); font-weight:600; padding:8px 0; }
+.cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.cal-day { aspect-ratio:1; border-radius:8px; border:none; background:none; font-size:14px; color:var(--text-primary); cursor:pointer; transition:all .15s; font-weight:500; }
+.cal-day:hover:not(:disabled) { background:var(--accent-light); }
+.cal-day.selected { background:var(--accent) !important; color:#fff !important; font-weight:700; }
+.cal-day:disabled { color:var(--border); cursor:default; }
+.cal-day.today { outline:2px solid var(--accent); outline-offset:-2px; }
+
+.time-slots { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; max-height:340px; overflow-y:auto; }
+.time-slot { padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--bg-primary); font-size:14px; font-weight:500; color:var(--text-secondary); cursor:pointer; transition:all .15s; text-align:center; }
+.time-slot:hover:not(:disabled):not(.unavailable) { border-color:var(--accent); color:var(--accent); }
+.time-slot.selected { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600; }
+.time-slot.unavailable { background:var(--bg-tertiary); color:var(--text-muted); cursor:not-allowed; text-decoration:line-through; opacity:.5; border-color:transparent; }
+.time-slot.loading-slot { background:linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-color:transparent; color:transparent; pointer-events:none; }
+.slots-loading-msg { text-align:center; font-size:13px; color:var(--text-muted); padding:12px; }
+.cal-source-badge { display:inline-flex; align-items:center; gap:4px; font-size:10px; color:var(--text-muted); background:var(--bg-secondary); padding:3px 8px; border-radius:4px; margin-top:8px; }
+.cal-source-badge.live { color:var(--accent); background:var(--accent-light); }
+
+/* ─── FORMS ─── */
+.form-grid { display:grid; gap:16px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:500px) { .form-row { grid-template-columns:1fr; } }
+.form-group label { display:block; font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:6px; }
+.form-group input, .form-group textarea, .form-group select {
+  width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:var(--radius);
+  font-size:15px; color:var(--text-primary); background:var(--bg-primary); outline:none; transition:border-color .2s;
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:var(--accent); }
+.form-group textarea { min-height:80px; resize:vertical; }
+.form-group input::placeholder, .form-group textarea::placeholder { color:var(--text-muted); }
+
+.booking-summary { background:var(--accent-light); border-radius:var(--radius); padding:16px 20px; margin-bottom:24px; display:flex; gap:24px; flex-wrap:wrap; }
+.booking-summary-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+.booking-summary-value { font-size:14px; font-weight:600; color:var(--accent); margin-top:2px; }
+
+.booking-nav { display:flex; justify-content:space-between; margin-top:32px; }
+.btn-back { padding:12px 24px; border-radius:var(--radius); font-size:14px; font-weight:500; color:var(--text-secondary); background:var(--bg-secondary); border:1px solid var(--border); }
+.btn-back:hover { background:var(--bg-tertiary); }
+.btn-next { padding:12px 28px; border-radius:var(--radius); font-size:14px; font-weight:600; color:#fff; background:var(--accent); transition:all .25s; }
+.btn-next:hover:not(:disabled) { background:var(--accent-hover); }
+.btn-next:disabled { opacity:.4; cursor:default; }
+
+.service-select-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; }
+.service-select-btn { padding:18px 14px; border-radius:var(--radius); border:1.5px solid var(--border); background:var(--bg-primary); text-align:left; cursor:pointer; transition:all .2s; }
+.service-select-btn:hover { border-color:var(--accent); }
+.service-select-btn.selected { border-color:var(--accent); background:var(--accent-light); }
+.service-select-btn .s-icon { font-size:24px; margin-bottom:8px; }
+.service-select-btn .s-name { font-size:14px; font-weight:600; color:var(--text-primary); }
+.service-select-btn .s-price { font-size:12px; color:var(--accent); font-weight:600; margin-top:2px; }
+
+/* ─── QUOTE (now inside booking) ─── */
+.quote-card { max-width:600px; margin:0 auto; background:var(--bg-primary); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:40px; box-shadow:var(--shadow-md); }
+
+/* ─── REVIEWS ─── */
+.reviews-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+.review-card { background:var(--bg-primary); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:28px; transition:all .3s; }
+.review-card:hover { box-shadow:var(--shadow-md); }
+.review-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+.review-author { display:flex; align-items:center; gap:12px; }
+.review-avatar { width:42px; height:42px; border-radius:50%; background:var(--accent-light); display:flex; align-items:center; justify-content:center; color:var(--accent); font-weight:700; font-size:16px; }
+.review-name { font-size:15px; font-weight:600; }
+.review-meta { font-size:12px; color:var(--text-muted); }
+.review-stars { color:{{COLOR_STARS}}; font-size:14px; letter-spacing:1px; }
+.review-text { font-size:14px; color:var(--text-secondary); line-height:1.65; font-style:italic; }
+
+/* ─── TEAM ─── */
+.team-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; }
+.team-card { background:var(--bg-primary); border:1px solid var(--border-light); border-radius:var(--radius-lg); padding:32px; text-align:center; transition:all .3s; }
+.team-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+.team-avatar { width:72px; height:72px; border-radius:50%; background:var(--accent-light); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px; }
+.team-name { font-size:18px; font-weight:700; margin-bottom:2px; }
+.team-role { font-size:14px; color:var(--accent); font-weight:500; margin-bottom:8px; }
+.team-detail { font-size:12px; color:var(--text-muted); }
+
+/* ─── WHY CHOOSE US ─── */
+.why-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:32px 24px; text-align:center; margin-top:16px; }
+.why-card { display:flex; flex-direction:column; align-items:center; gap:0; }
+.why-icon-wrap {
+  width:72px; height:72px; border-radius:50%;
+  background:var(--accent-light);
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px; margin-bottom:20px;
+  position:relative;
+}
+.why-icon-wrap::after {
+  content:'';
+  position:absolute; inset:-4px;
+  border-radius:50%;
+  border:2px solid var(--accent);
+  opacity:.25;
+}
+.why-card h4 { font-size:17px; font-weight:800; margin-bottom:8px; letter-spacing:-.2px; }
+.why-card p { font-size:14px; color:var(--text-secondary); line-height:1.6; max-width:200px; }
+
+/* ─── GUARANTEES (About page) ─── */
+.guarantee-card { background:var(--bg-primary); border:1px solid var(--border-light); border-radius:var(--radius); padding:24px; }
+.guarantee-card h4 { font-size:15px; font-weight:600; margin:10px 0 6px; }
+.guarantee-card p { font-size:13px; color:var(--text-secondary); line-height:1.6; }
+
+/* ─── CONTACT ─── */
+.contact-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:40px; }
+@media (max-width:700px) { .contact-grid { grid-template-columns:1fr; } }
+.contact-info-item { display:flex; gap:14px; align-items:flex-start; margin-bottom:24px; }
+.contact-info-icon { width:42px; height:42px; border-radius:10px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:18px; }
+.contact-info-label { font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+.contact-info-value { font-size:15px; font-weight:600; }
+.contact-info-sub { font-size:12px; color:var(--text-muted); }
+
+/* ─── CTA ─── */
+.cta-banner { max-width:700px; margin:0 auto; background:var(--accent); border-radius:var(--radius-lg); padding:56px 40px; text-align:center; color:#fff; position:relative; overflow:hidden; }
+.cta-banner::before { content:''; position:absolute; top:-80px; right:-80px; width:200px; height:200px; background:rgba(255,255,255,.08); border-radius:50%; }
+.cta-banner h2 { font-family:var(--font-display); font-size:32px; font-weight:800; margin-bottom:12px; }
+.cta-banner p { font-size:16px; opacity:.85; margin-bottom:28px; }
+.btn-white { background:#fff; color:var(--accent); padding:14px 36px; border-radius:var(--radius); font-size:15px; font-weight:600; transition:all .2s; display:inline-block; }
+.btn-white:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.15); }
+
+/* ─── FOOTER ─── */
+.footer { border-top:1px solid var(--border); padding:48px 24px 24px; }
+.footer-inner { max-width:var(--max-width); margin:0 auto; display:grid; grid-template-columns:1.5fr repeat(3,1fr); gap:40px; }
+@media (max-width:700px) { .footer-inner { grid-template-columns:1fr 1fr; } }
+.footer-brand { font-family:var(--font-display); font-size:20px; font-weight:800; margin-bottom:8px; }
+.footer-desc { font-size:13px; color:var(--text-muted); line-height:1.6; }
+.footer-col h4 { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:14px; }
+.footer-link { display:block; font-size:14px; color:var(--text-secondary); margin-bottom:8px; cursor:pointer; transition:color .2s; background:none; border:none; padding:0; text-align:left; }
+.footer-link:hover { color:var(--accent); }
+.footer-bottom { max-width:var(--max-width); margin:36px auto 0; padding-top:20px; border-top:1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.footer-copy { font-size:13px; color:var(--text-muted); }
+.footer-admin { font-size:12px; color:var(--text-muted); background:var(--bg-secondary); border:1px solid var(--border); padding:6px 14px; border-radius:6px; text-decoration:none; transition:all .2s; }
+.footer-admin:hover { border-color:var(--text-muted); }
+
+/* ─── TOAST ─── */
+.toast { position:fixed; top:24px; right:24px; z-index:9999; padding:14px 24px; border-radius:var(--radius); font-size:14px; font-weight:600; color:#fff; animation:slideDown .35s ease; box-shadow:var(--shadow-lg); }
+.toast-success { background:var(--accent); }
+.toast-error { background:#d63031; }
+
+/* ─── CONFIRM ─── */
+.confirm-page { text-align:center; padding:100px 24px; max-width:480px; margin:0 auto; }
+.confirm-check { width:72px; height:72px; border-radius:50%; background:var(--accent-light); display:flex; align-items:center; justify-content:center; margin:0 auto 24px; animation:checkPop .5s ease; }
+
+.spinner { width:18px; height:18px; border:2.5px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; display:inline-block; vertical-align:middle; margin-right:8px; }
+
+/* ─── PAGES ─── */
+.page { display:none; }
+.page.active { display:block; }
+#page-home { padding-top: 0; }
+#page-services, #page-booking, #page-about, #page-reviews, #page-contact { padding-top: 0; }
+
+/* ─── INQUIRY TYPE ─── */
+@media (max-width:500px) {
+  .inquiry-type-selector { grid-template-columns:1fr; }
+  .booking-mode-toggle { flex-direction:column; align-items:center; }
+}
+
+/* ─── GALLERY SECTION ─── */
+.gallery-section { padding:72px 24px 80px; background:var(--bg-secondary); }
+.gallery-inner { max-width:var(--max-width); margin:0 auto; }
+.gallery-grid {
+  columns: 3 240px;
+  column-gap: 12px;
+  line-height: 0;
+}
+.gallery-item {
+  break-inside: avoid;
+  display: block;
+  margin-bottom: 12px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  line-height: 0;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .45s ease, transform .45s ease, box-shadow .25s ease;
+}
+.gallery-item.visible { opacity: 1; transform: translateY(0); }
+.gallery-item:hover { box-shadow: var(--shadow-lg); }
+.gallery-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform .4s ease;
+  object-fit: cover;
+}
+.gallery-item:hover img { transform: scale(1.04); }
+.gallery-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.22);
+  opacity: 0;
+  transition: opacity .25s ease;
+  border-radius: var(--radius);
+}
+.gallery-item:hover::after { opacity: 1; }
+.gallery-zoom-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(.7);
+  z-index: 2;
+  background: rgba(255,255,255,.9);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity .25s ease, transform .25s ease;
+  pointer-events: none;
+}
+.gallery-item:hover .gallery-zoom-icon { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.gallery-more-btn {
+  display: block;
+  margin: 28px auto 0;
+  padding: 12px 36px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: var(--bg-primary);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all .2s;
+}
+.gallery-more-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-light); }
+.gallery-more-btn.hidden { display: none; }
+.gallery-item.gallery-overflow { display: none; }
+.gallery-item.gallery-overflow.gallery-shown { display: block; }
+.gallery-section.gallery-empty { display: none; }
+
+/* Lightbox */
+.gallery-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0,0,0,.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+  backdrop-filter: blur(8px);
+}
+.gallery-lightbox.open { opacity: 1; pointer-events: all; }
+.gallery-lightbox img {
+  max-width: 92vw;
+  max-height: 88vh;
+  border-radius: var(--radius-lg);
+  object-fit: contain;
+  box-shadow: 0 24px 80px rgba(0,0,0,.6);
+}
+.gallery-lb-close {
+  position: absolute;
+  top: 20px; right: 24px;
+  background: rgba(255,255,255,.14);
+  border: none; color: #fff;
+  font-size: 22px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+  z-index: 9999;
+  line-height: 1;
+}
+.gallery-lb-close:hover { background: rgba(255,255,255,.28); }
+.gallery-lb-prev, .gallery-lb-next {
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.14);
+  border: none; color: #fff;
+  font-size: 26px;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+  z-index: 9999;
+}
+.gallery-lb-prev { left: 20px; }
+.gallery-lb-next { right: 20px; }
+.gallery-lb-prev:hover, .gallery-lb-next:hover { background: rgba(255,255,255,.28); }
+.gallery-lb-prev.hidden, .gallery-lb-next.hidden { display: none; }
+.gallery-lb-counter {
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.5); color: rgba(255,255,255,.85);
+  font-size: 13px; font-weight: 500;
+  padding: 5px 14px; border-radius: 100px;
+}
+@media (max-width:600px) {
+  .gallery-grid { columns: 2 150px; }
+  .gallery-lb-prev { left: 8px; }
+  .gallery-lb-next { right: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP CONTACT BAR -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <span class="top-bar-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      {{PHONE_HOURS}}
+    </span>
+  </div>
+  <div class="top-bar-right">
+    <span class="top-bar-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.14 2.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.46-.46a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      {{BUSINESS_PHONE}}
+    </span>
+    <span class="top-bar-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      {{BUSINESS_EMAIL}}
+    </span>
+  </div>
+</div>
+
+<!-- NAV — sticky, stacks below top bar -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo" id="logoBtn">
+      <div class="nav-logo-icon">🔧</div>
+      <div>
+        <div class="nav-logo-text">{{COMPANY_SHORT}}</div>
+        <div class="nav-logo-sub">{{COMPANY_TYPE}}</div>
+      </div>
+    </div>
+    <div class="nav-desktop" id="navDesktop"></div>
+    <button class="nav-hamburger" id="hamburgerBtn">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+  </div>
+  <div class="nav-mobile" id="navMobile"></div>
+</nav>
+
+<!-- PARALLAX HERO IMAGE — place hero.png in same folder as index.html -->
+<div class="site-hero-wrap" id="siteHeroWrap">
+  <img
+    class="site-hero-img"
+    id="siteHeroImg"
+    src="hero.png"
+    alt="{{COMPANY_NAME}} — {{INDUSTRY_TITLE}} Services"
+    onerror="this.closest('.site-hero-wrap').classList.add('hero-missing')"
+    onload="this.classList.add('loaded')"
+  >
+  <div class="site-hero-gradient"></div>
+  <div class="site-hero-overlay">
+    <div class="site-hero-split">
+      <!-- Left: headline & trust signals -->
+      <div class="hero-left-text fade-up">
+        <div class="hero-eyebrow">
+          <span class="hero-badge-dot"></span>
+          {{HERO_BADGE}}
+        </div>
+        <h1>{{HERO_H1_LINE1}}<br><em>{{HERO_H1_LINE2}}</em></h1>
+        <p class="hero-sub">{{HERO_SUBTEXT}}</p>
+        <div class="hero-trust-items">
+          <div class="hero-trust-item">
+            <div class="hero-trust-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <span>Serving {{SERVICE_AREA}}</span>
+          </div>
+          <div class="hero-trust-item">
+            <div class="hero-trust-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <span>Licensed, Insured &amp; Warranty-Backed Work</span>
+          </div>
+          <div class="hero-trust-item">
+            <div class="hero-trust-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <span>100% Satisfaction Guaranteed</span>
+          </div>
+        </div>
+        <div class="hero-social-proof">
+          <div class="hero-avatars">
+            <div class="hero-avatar-placeholder">A</div>
+            <div class="hero-avatar-placeholder">B</div>
+            <div class="hero-avatar-placeholder">C</div>
+            <div class="hero-avatar-placeholder">D</div>
+          </div>
+          <div class="hero-proof-text">
+            <strong id="statJobs2">4,500+</strong> happy customers<br>
+            <span style="color:var(--accent);font-weight:600;">★★★★★</span> <span style="font-size:12px;">5.0 rating</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: lead capture form -->
+      <div class="hero-lead-form fade-up fade-up-2" id="heroLeadForm">
+        <p class="form-title">Let's Build the Home You've Always Wanted</p>
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input id="hlName" type="text" placeholder="e.g. John Doe">
+        </div>
+        <div class="form-group">
+          <label>Phone *</label>
+          <input id="hlPhone" type="tel" placeholder="e.g. (555) 555-5555">
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input id="hlEmail" type="email" placeholder="e.g. john.doe@example.com">
+        </div>
+        <div class="form-group">
+          <label>ZIP Code *</label>
+          <input id="hlZip" type="text" placeholder="e.g. Street Name, City">
+        </div>
+        <div class="hero-consent">
+          <input type="checkbox" id="hlConsent">
+          <label for="hlConsent">By submitting this form you consent to receive communication related to your inquiry via email, call, or text. You can opt out anytime</label>
+        </div>
+        <button class="hero-form-btn" id="btnHeroLead" onclick="submitHeroLead()">Get Free Quote</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+
+  <!-- ═══ GOOGLE REVIEWS STRIP ═══ -->
+  <div id="googleReviewsStrip" style="display:none; background:var(--bg-secondary); border-bottom:1px solid var(--border-light); padding:14px 24px;">
+    <div style="max-width:var(--max-width);margin:0 auto;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        <div>
+          <div style="font-weight:700;font-size:14px;" id="grBusinessName">Google Reviews</div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span style="color:#f5a623;font-size:14px;" id="grStars">★★★★★</span>
+            <span style="font-size:13px;font-weight:600;" id="grRating">5.0</span>
+            <span style="font-size:12px;color:var(--text-muted);" id="grCount">(0)</span>
+          </div>
+        </div>
+      </div>
+      <div id="grReviewsScroll" style="display:flex;gap:16px;overflow-x:auto;flex:1;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:4px;"></div>
+      <a id="grWriteLink" href="#" target="_blank" rel="noopener" style="flex-shrink:0;font-size:13px;font-weight:600;color:var(--accent);white-space:nowrap;padding:8px 18px;border:1.5px solid var(--accent);border-radius:8px;transition:all .2s;" onmouseover="this.style.background='var(--accent-light)'" onmouseout="this.style.background='transparent'">Write a Review →</a>
+    </div>
+  </div>
+
+  <!-- ═══ STATS BAR ═══ -->
+  <div style="background:var(--bg-primary);border-bottom:1px solid var(--border-light);">
+    <div class="stats" style="max-width:var(--max-width);margin:0 auto;border-radius:0;box-shadow:none;background:transparent;border:none;">
+      <div class="stat"><div class="stat-value" id="statYears">18+</div><div class="stat-label">Years Exp.</div></div>
+      <div class="stat"><div class="stat-value" id="statJobs">4,500+</div><div class="stat-label">Jobs Done</div></div>
+      <div class="stat"><div class="stat-value" id="statSatisfaction">99%</div><div class="stat-label">Satisfaction</div></div>
+      <div class="stat"><div class="stat-value" id="statTeam">12</div><div class="stat-label">Team Size</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ HOMEPAGE INQUIRY WIDGET ═══ -->
+  <div class="inquiry-section" id="inquirySection">
+    <div class="inquiry-card fade-up">
+      <h3>How Can We Help?</h3>
+      <p class="subtitle">Tell us what you need — we'll get back to you fast.</p>
+
+      <div class="inquiry-type-selector" id="inquiryTypeSelector">
+        <button class="inquiry-type-btn selected" data-type="question">
+          <div class="iq-icon">❓</div>
+          <div class="iq-label">Ask a Question</div>
+          <div class="iq-desc">General inquiry</div>
+        </button>
+        <button class="inquiry-type-btn" data-type="quote">
+          <div class="iq-icon">💰</div>
+          <div class="iq-label">Get a Quote</div>
+          <div class="iq-desc">Free estimate</div>
+        </button>
+        <button class="inquiry-type-btn" data-type="callback">
+          <div class="iq-icon">📞</div>
+          <div class="iq-label">Request Callback</div>
+          <div class="iq-desc">We'll call you</div>
+        </button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-row">
+          <div class="form-group"><label>Name *</label><input id="iqName" placeholder="Your name"></div>
+          <div class="form-group"><label>Phone *</label><input id="iqPhone" type="tel" placeholder="{{BUSINESS_PHONE}}"></div>
+        </div>
+        <div class="form-group"><label>Email *</label><input id="iqEmail" type="email" placeholder="you@email.com"></div>
+        <div class="form-group" id="iqServiceGroup" style="display:none;">
+          <label>Service Needed</label>
+          <select id="iqService"><option value="">Select a service...</option></select>
+        </div>
+        <div class="form-group" id="iqMessageGroup">
+          <label id="iqMessageLabel">Your Question *</label>
+          <textarea id="iqMessage" placeholder="How can we help?"></textarea>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center;" id="btnSubmitInquiry">Submit →</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="section section-alt" id="homeServicesSection">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="services-eyebrow">{{SERVICES_EYEBROW}}</div>
+        <h2 class="services-big-headline">{{SECTION_WHAT_WE_DO}}</h2>
+        <p>{{SERVICES_SUBTEXT}}</p>
+      </div>
+      <div class="services-img-grid" id="homeServicesGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══ WHY CHOOSE US ═══ -->
+  <section class="section" id="whyChooseSection">
+    <div class="section-inner">
+      <div class="section-header">
+        <h2>Why Choose Us</h2>
+        <p id="whyChooseSubtitle">{{WHY_CHOOSE_SUBTITLE}}</p>
+      </div>
+      <div class="why-grid" id="whyGrid">
+        <!-- Populated by renderWhyChooseUs() from guarantee data -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ GALLERY ═══ -->
+  <section class="gallery-section" id="gallerySection">
+    <div class="gallery-inner">
+      <div class="section-header">
+        <h2>Our Work</h2>
+        <p>A look at recent projects — quality you can see.</p>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+      <button class="gallery-more-btn hidden" id="galleryMoreBtn">Show More Photos</button>
+    </div>
+  </section>
+
+  <!-- ═══ VIDEO TESTIMONIALS ═══ -->
+  <section class="testimonials-section" id="testimonialsSection">
+    <div class="testimonials-inner">
+      <div class="testimonials-header-center">
+        <h2 class="testimonials-headline">{{TESTIMONIALS_HEADLINE}}</h2>
+        <div class="testimonials-accent-lines">
+          <span>{{TESTIMONIALS_LINE1}}</span>
+          <span>{{TESTIMONIALS_LINE2}}</span>
+          <span>{{TESTIMONIALS_LINE3}}</span>
+        </div>
+        <p class="testimonials-sub">{{TESTIMONIALS_SUB}}</p>
+        <div class="testimonials-video-label">Video Testimonials</div>
+      </div>
+      <div class="testimonials-grid" id="testimonialsGrid"></div>
+      <button class="testimonials-more-btn hidden" id="testimonialsMoreBtn">Show More Testimonials</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-inner">
+      <div class="cta-banner">
+        <h2>Ready to Fix It?</h2>
+        <p>Book online in 60 seconds. We'll confirm within the hour.</p>
+        <button class="btn-white" onclick="showPage('booking')">Book Appointment →</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- SERVICES -->
+<div id="page-services" class="page">
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-header"><h2>{{SECTION_OUR_SERVICES}}</h2><p>{{SERVICES_SUBTEXT_2}}</p></div>
+      <div class="services-grid" id="servicesGrid"></div>
+    </div>
+  </section>
+</div>
+
+<!-- BOOKING (unified: service appointment OR quote request) -->
+<div id="page-booking" class="page">
+  <section class="section">
+    <div class="booking-container">
+      <div class="section-header"><h2 id="bookingPageTitle">Book an Appointment</h2><p id="bookingPageDesc">Select your service, pick a time, and we'll handle the rest.</p></div>
+
+      <!-- Mode toggle: Book vs Quote -->
+      <div class="booking-mode-toggle">
+        <button class="booking-mode-btn active" data-mode="book" id="modeBook">📅 Book Service</button>
+        <button class="booking-mode-btn" data-mode="quote" id="modeQuote">💰 Request Quote</button>
+      </div>
+
+      <div class="booking-steps" id="bookingSteps"></div>
+
+      <!-- Step 1: Service -->
+      <div id="bookingStep1">
+        <div class="service-select-grid" id="serviceSelectGrid"></div>
+        <div class="booking-nav" style="justify-content:flex-end;">
+          <button class="btn-next" id="btnStep1Next" disabled onclick="goBookingStep(2)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Date & Time (only for "book" mode) -->
+      <div id="bookingStep2" style="display:none;">
+        <div class="cal-grid">
+          <div class="cal-panel">
+            <div class="cal-nav">
+              <button onclick="calPrev()">‹</button>
+              <span id="calMonthLabel"></span>
+              <button onclick="calNext()">›</button>
+            </div>
+            <div class="cal-weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+            <div class="cal-days" id="calDays"></div>
+          </div>
+          <div class="cal-panel">
+            <h3 style="font-size:16px;font-weight:600;margin-bottom:14px;" id="timeSlotsLabel">Select a date first</h3>
+            <div class="time-slots" id="timeSlots"></div>
+            <div id="calSourceBadge"></div>
+          </div>
+        </div>
+        <div class="booking-nav">
+          <button class="btn-back" onclick="goBookingStep(1)">← Back</button>
+          <button class="btn-next" id="btnStep2Next" disabled onclick="goBookingStep(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3 (book) / Step 2 (quote): Your Info -->
+      <div id="bookingStep3" style="display:none;">
+        <div class="booking-summary" id="bookingSummary"></div>
+
+        <!-- Deposit notice — shown only in "book" mode -->
+        <div id="depositNotice" style="display:none;background:{{COLOR_ACCENT_LIGHT}};border:1px solid {{COLOR_ACCENT_BORDER}};border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:flex-start;gap:12px;">
+          <span style="font-size:22px;flex-shrink:0;">🔒</span>
+          <div>
+            <div style="font-weight:700;font-size:14px;color:{{COLOR_ACCENT}};margin-bottom:3px;">${{DEPOSIT_AMOUNT}} Deposit Required at Booking</div>
+            <div style="font-size:13px;color:#2d7a52;line-height:1.5;">This covers our travel &amp; inspection time. It is <strong>not</strong> deducted from the job total — the final invoice is billed separately after we complete the work. Secure payment via Stripe.</div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group"><label>Full Name *</label><input type="text" id="bkName" placeholder="John Smith"></div>
+          <div class="form-row">
+            <div class="form-group"><label>Email *</label><input type="email" id="bkEmail" placeholder="john@email.com"></div>
+            <div class="form-group"><label>Phone *</label><input type="tel" id="bkPhone" placeholder="{{BUSINESS_PHONE}}"></div>
+          </div>
+          <div class="form-group"><label>Service Address</label><input type="text" id="bkAddress" placeholder="123 Main St, Fort Lauderdale, FL"></div>
+          <div class="form-group"><label id="bkNotesLabel">Describe the Issue</label><textarea id="bkNotes" placeholder="Tell us about the problem..."></textarea></div>
+        </div>
+        <div class="booking-nav">
+          <button class="btn-back" id="btnStep3Back" onclick="goBookingStep(bookingMode==='quote'?1:2)">← Back</button>
+          <button class="btn-next" id="btnSubmitBooking" onclick="submitBooking()">Confirm Booking ✓</button>
+        </div>
+      </div>
+
+      <!-- Confirmation -->
+      <div id="bookingConfirm" style="display:none;">
+        <div class="confirm-page">
+          <div class="confirm-check">
+            <svg width="32" height="32" fill="none" stroke="var(--accent)" stroke-width="3"><path d="M8 16l6 6 12-12"/></svg>
+          </div>
+          <h2 id="confirmTitle" style="font-family:var(--font-display);font-size:32px;font-weight:800;margin-bottom:12px;">You're Booked!</h2>
+          <p id="confirmDesc" style="color:var(--text-secondary);font-size:16px;line-height:1.7;margin-bottom:12px;">We've received your appointment. You'll get a confirmation call within the hour.</p>
+          <p id="confirmEmail" style="color:var(--text-muted);font-size:14px;margin-bottom:32px;"></p>
+          <button class="btn-primary" onclick="resetBookingAndGoHome()">Back to Home</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ABOUT -->
+<div id="page-about" class="page">
+  <section class="hero" style="padding:60px 24px 40px;">
+    <div class="hero-inner">
+      <h1 class="fade-up" style="font-size:clamp(30px,4vw,52px);" id="aboutHeadline">{{ABOUT_HEADLINE}}</h1>
+      <p class="fade-up fade-up-1" id="aboutSubheadline">Family-owned and serving {{SERVICE_AREA}} since {{YEAR_FOUNDED}}</p>
+    </div>
+  </section>
+  <section class="section section-alt">
+    <div class="section-inner" style="max-width:780px;">
+      <div class="section-header"><h2>Our Story</h2></div>
+      <p style="font-size:16px;color:var(--text-secondary);line-height:1.8;margin-bottom:20px;" id="aboutStory">Loading...</p>
+      <p style="font-size:15px;font-style:italic;color:var(--accent);font-weight:600;" id="aboutMission"></p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-header"><h2>Meet the Team</h2><p>Licensed, experienced, and passionate about quality work.</p></div>
+      <div class="team-grid" id="teamGrid"></div>
+    </div>
+  </section>
+  <section class="section section-alt">
+    <div class="section-inner">
+      <div class="section-header"><h2>Our Guarantees</h2></div>
+      <div class="guarantees-grid" id="guaranteesGrid"></div>
+    </div>
+  </section>
+</div>
+
+<!-- REVIEWS -->
+<div id="page-reviews" class="page">
+  <section class="section section-alt">
+    <div class="section-inner">
+      <div class="section-header"><h2>Customer Reviews</h2><p>Hear from the homeowners and businesses we've helped.</p></div>
+      <div class="reviews-grid" id="reviewsGrid"><div style="text-align:center;padding:40px;color:var(--text-muted);">Loading reviews...</div></div>
+    </div>
+  </section>
+</div>
+
+<!-- CONTACT -->
+<div id="page-contact" class="page">
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-header"><h2>Get in Touch</h2></div>
+      <div class="contact-grid">
+        <div>
+          <div class="contact-info-item"><div class="contact-info-icon">📞</div><div><div class="contact-info-label">Phone</div><div class="contact-info-value">{{BUSINESS_PHONE}}</div><div class="contact-info-sub">{{PHONE_HOURS}}</div></div></div>
+          <div class="contact-info-item"><div class="contact-info-icon">✉️</div><div><div class="contact-info-label">Email</div><div class="contact-info-value">{{BUSINESS_EMAIL}}</div><div class="contact-info-sub">Response within 2 hours</div></div></div>
+          <div class="contact-info-item"><div class="contact-info-icon">📍</div><div><div class="contact-info-label">Location</div><div class="contact-info-value">Fort Lauderdale, FL</div><div class="contact-info-sub">Serving all of Broward County</div></div></div>
+          <div class="contact-info-item"><div class="contact-info-icon">🕐</div><div><div class="contact-info-label">Hours</div><div class="contact-info-value">Mon–Sat: 7am–8pm</div><div class="contact-info-sub">Sunday: Emergency only</div></div></div>
+        </div>
+        <div style="background:var(--bg-primary);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:32px;">
+          <h3 style="font-size:20px;font-weight:700;margin-bottom:24px;">Send a Message</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Name *</label><input id="ctName" placeholder="Your name"></div>
+            <div class="form-group"><label>Email *</label><input id="ctEmail" placeholder="you@email.com"></div>
+            <div class="form-group"><label>Message *</label><textarea id="ctMessage" placeholder="How can we help?"></textarea></div>
+            <button class="btn-primary" style="width:100%;justify-content:center;" id="btnContact" onclick="submitContact()">Send Message →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">{{COMPANY_SHORT}}</div>
+      <p class="footer-desc">{{FOOTER_DESC}}</p>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <button class="footer-link" onclick="showPage('services')">Emergency Repair</button>
+      <button class="footer-link" onclick="showPage('services')">Drain Cleaning</button>
+      <button class="footer-link" onclick="showPage('services')">Water Heater</button>
+      <button class="footer-link" onclick="showPage('services')">Pipe Installation</button>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <button class="footer-link" onclick="showPage('about')">About Us</button>
+      <button class="footer-link" onclick="showPage('reviews')">Reviews</button>
+      <button class="footer-link" onclick="showPage('contact')">Contact</button>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <span class="footer-link">{{BUSINESS_PHONE}}</span>
+      <span class="footer-link">{{BUSINESS_EMAIL}}</span>
+      <span class="footer-link">Fort Lauderdale, FL</span>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; {{COPYRIGHT_YEAR}} {{COMPANY_NAME}} All rights reserved.</span>
+    <a class="footer-admin" href="admin.html">Admin Portal →</a>
+  </div>
+</footer>
+
+<!-- GALLERY LIGHTBOX (shared, outside page divs) -->
+<div class="gallery-lightbox" id="galleryLightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="gallery-lb-close" id="galleryLbClose" aria-label="Close">✕</button>
+  <button class="gallery-lb-prev hidden" id="galleryLbPrev" aria-label="Previous photo">‹</button>
+  <img src="" alt="Gallery photo" id="galleryLbImg">
+  <button class="gallery-lb-next hidden" id="galleryLbNext" aria-label="Next photo">›</button>
+  <div class="gallery-lb-counter" id="galleryLbCounter"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   CONFIG
+   ═══════════════════════════════════════ */
+const GAS_URL = '{{GAS_WORKER_URL}}';
+
+// ── Stripe Worker URL ── set after deploying stripe-worker.js to Cloudflare
+const STRIPE_WORKER_URL = localStorage.getItem('{{COMPANY_SLUG}}_stripe_worker') || '{{STRIPE_WORKER_URL}}';
+
+// ── Dynamic data — loaded from GAS sheets ──
+let SERVICES  = [];  // populated by loadSiteData()
+let REVIEWS   = [];
+let ABOUT_DATA = {};
+
+// Fallback services used while GAS is loading or if fetch fails
+const SERVICES_FALLBACK = [
+  { ID:'s1', Name:'Emergency Repair', Icon:'🔧', Price:'From $89', Description:'24/7 emergency {{INDUSTRY}} repairs for burst pipes, major leaks, and flooding.', Duration:60, Active:true },
+  { ID:'s2', Name:'Drain Cleaning',   Icon:'🚿', Price:'From $65', Description:'Professional drain unclogging for kitchens, bathrooms, and main lines.',    Duration:45, Active:true },
+  { ID:'s3', Name:'Water Heater',     Icon:'🔥', Price:'From $120', Description:'Installation, repair, and maintenance of all water heater types.',           Duration:90, Active:true },
+  { ID:'s4', Name:'Pipe Installation',Icon:'🔩', Price:'From $150', Description:'New pipe installation, repiping, and pipe replacement services.',            Duration:120,Active:true },
+  { ID:'s5', Name:'Fixture Install',  Icon:'🚰', Price:'From $75', Description:'Faucet, toilet, shower, and sink installation and replacement.',             Duration:60, Active:true },
+  { ID:'s6', Name:'Inspection',       Icon:'🔍', Price:'From $49', Description:'Comprehensive {{INDUSTRY}} inspection with camera and detailed report.',          Duration:45, Active:true },
+  { ID:'s7', Name:'Sewer Line',       Icon:'🏗️', Price:'From $200', Description:'Sewer line repair, replacement, and trenchless solutions.',                  Duration:180,Active:true },
+  { ID:'s8', Name:'Gas Line',         Icon:'⚡', Price:'From $175', Description:'Gas line installation, repair, and leak detection services.',                Duration:90, Active:true },
+];
+
+const NAV_ITEMS = [
+  { id:'home', label:'Home' },
+  { id:'services', label:'Services' },
+  { id:'booking', label:'Book' },
+  { id:'about', label:'About' },
+  { id:'reviews', label:'Reviews' },
+  { id:'contact', label:'Contact' },
+];
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════ */
+let currentPage = 'home';
+
+function buildNav() {
+  const desktop = document.getElementById('navDesktop');
+  const mobile = document.getElementById('navMobile');
+  let dHTML = '', mHTML = '';
+  NAV_ITEMS.forEach(item => {
+    const ac = item.id === currentPage ? ' active' : '';
+    dHTML += `<button class="nav-link${ac}" data-nav="${item.id}">${item.label}</button>`;
+    mHTML += `<button data-nav="${item.id}">${item.label}</button>`;
+  });
+  dHTML += `<button class="nav-cta" data-nav="booking">📅 Book Now</button>`;
+  desktop.innerHTML = dHTML;
+  mobile.innerHTML = mHTML;
+  desktop.querySelectorAll('[data-nav]').forEach(btn => {
+    btn.addEventListener('click', () => showPage(btn.dataset.nav));
+  });
+  mobile.querySelectorAll('[data-nav]').forEach(btn => {
+    btn.addEventListener('click', () => showPage(btn.dataset.nav));
+  });
+}
+
+// Full showPage — replaces the early head stub once the main script loads
+function showPage(id) {
+  currentPage = id;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + id);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.nav-desktop .nav-link').forEach(l => {
+    l.classList.toggle('active', l.dataset.nav === id);
+  });
+  document.getElementById('navMobile').classList.remove('open');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window._showPageFull = showPage; // expose for early stub
+
+document.getElementById('logoBtn').addEventListener('click', () => showPage('home'));
+document.getElementById('hamburgerBtn').addEventListener('click', () => {
+  document.getElementById('navMobile').classList.toggle('open');
+});
+
+/* ═══════════════════════════════════════
+   RENDER STATIC CONTENT
+   ═══════════════════════════════════════ */
+function renderServiceCards(containerId) {
+  const active = SERVICES.filter(s => s.Active !== false);
+  // Homepage uses image card style, services page uses icon card style
+  if (containerId === 'homeServicesGrid') {
+    renderServicesImageGrid(active);
+    return;
+  }
+  document.getElementById(containerId).innerHTML = active.map(s => `
+    <div class="service-card">
+      <div class="service-card-icon">${s.Icon || s.icon || '🔧'}</div>
+      <h3>${s.Name || s.name}</h3>
+      <p>${s.Description || s.desc}</p>
+      <div class="service-card-price">${s.Price || s.price}</div>
+      <div class="service-card-duration">~${s.Duration || s.duration} min</div>
+    </div>
+  `).join('') || '<p style="color:var(--text-muted);text-align:center;padding:24px;">No services available.</p>';
+}
+
+function renderServicesImageGrid(services) {
+  const grid = document.getElementById('homeServicesGrid');
+  if (!grid) return;
+  if (!services.length) { grid.innerHTML = ''; return; }
+  grid.innerHTML = services.map((s, i) => {
+    const name = s.Name || s.name;
+    const desc = s.Description || s.desc || '';
+    const icon = s.Icon || s.icon || '🔧';
+    // Bullets: split description on period/semicolon/newline into max 3 points
+    const rawBullets = s.Bullets || s.bullets || '';
+    let bullets = rawBullets
+      ? rawBullets.split(/[;|\n]/).map(b => b.trim()).filter(Boolean).slice(0, 3)
+      : desc.split(/[.!?]/).map(b => b.trim()).filter(b => b.length > 10).slice(0, 3);
+    if (!bullets.length) bullets = [desc];
+    const imgSrc = 'service' + (i + 1) + '.jpg';
+    return `
+      <div class="svc-img-card">
+        <img class="svc-img-thumb" src="${imgSrc}" alt="${name}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="svc-img-thumb-placeholder" style="display:none">${icon}</div>
+        <div class="svc-img-body">
+          <h3>${name}</h3>
+          <p>${bullets[0] || desc}</p>
+          <ul class="svc-img-bullets">
+            ${bullets.map(b => `<li>${b}</li>`).join('')}
+          </ul>
+          <button class="svc-img-cta" onclick="showPage('booking')">Learn More →</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+
+function renderServiceSelectGrid() {
+  const active = SERVICES.filter(s => s.Active !== false);
+  const el = document.getElementById('serviceSelectGrid');
+  el.innerHTML = active.map(s => `
+    <button class="service-select-btn" data-sid="${s.ID || s.id}">
+      <div class="s-icon">${s.Icon || s.icon || '🔧'}</div>
+      <div class="s-name">${s.Name || s.name}</div>
+      <div class="s-price">${s.Price || s.price}</div>
+    </button>
+  `).join('');
+  el.querySelectorAll('.service-select-btn').forEach(btn => {
+    btn.addEventListener('click', () => selectService(btn.dataset.sid));
+  });
+}
+
+function renderInquiryServiceOptions() {
+  const el = document.getElementById('iqService');
+  SERVICES.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.name;
+    opt.textContent = s.name;
+    el.appendChild(opt);
+  });
+}
+
+function renderReviews() {
+  const published = REVIEWS.filter(r => !r.Status || r.Status === 'Published');
+  const el = document.getElementById('reviewsGrid');
+  if (!published.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">No reviews yet. Be the first!</div>';
+    return;
+  }
+  el.innerHTML = published.map(r => {
+    const name = r.Name || r.name || 'Anonymous';
+    const rating = parseInt(r.Rating || r.rating) || 5;
+    const text = r.ReviewText || r.text || '';
+    const ts = r.Timestamp || r.date || '';
+    const date = ts ? new Date(ts).toLocaleDateString('en-US', {month:'short', year:'numeric'}) : '';
+    return `
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-author">
+            <div class="review-avatar">${name[0].toUpperCase()}</div>
+            <div><div class="review-name">${name}</div><div class="review-meta">${date}</div></div>
+          </div>
+          <div class="review-stars">${'★'.repeat(rating)}${'☆'.repeat(Math.max(0, 5-rating))}</div>
+        </div>
+        <p class="review-text">"${text}"</p>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTeam() {
+  const a = ABOUT_DATA;
+  const members = [];
+  for (let i = 1; i <= 10; i++) {
+    const n = a['teamMember'+i+'Name'];
+    if (!n) break;
+    members.push({
+      name: n,
+      role: a['teamMember'+i+'Role'] || '',
+      years: a['teamMember'+i+'Years'] || '',
+      cert: a['teamMember'+i+'Cert'] || '',
+    });
+  }
+  const TEAM_ICONS = ['👨‍🔧','👩‍🔧','🧑‍🔧','👷','🔧'];
+  document.getElementById('teamGrid').innerHTML = members.map((t, i) => `
+    <div class="team-card">
+      <div class="team-avatar">${TEAM_ICONS[i % TEAM_ICONS.length]}</div>
+      <div class="team-name">${t.name}</div>
+      <div class="team-role">${t.role}</div>
+      <div class="team-detail">${t.years ? t.years+' yrs experience' : ''}${t.years && t.cert ? ' · ' : ''}${t.cert}</div>
+    </div>
+  `).join('') || '<p style="color:var(--text-muted);text-align:center;">No team members added yet.</p>';
+
+  const guarantees = [];
+  const GUARANTEE_ICONS = ['🛡️','✅','⏰','💰','🏆','🔒'];
+  for (let i = 1; i <= 8; i++) {
+    const t = a['guarantee'+i+'Title'];
+    if (!t) break;
+    guarantees.push({ icon: GUARANTEE_ICONS[i-1] || '✅', title: t, desc: a['guarantee'+i+'Desc'] || '' });
+  }
+  document.getElementById('guaranteesGrid').innerHTML = guarantees.map(g => `
+    <div class="guarantee-card">
+      <div style="font-size:22px;">${g.icon}</div>
+      <h4>${g.title}</h4>
+      <p>${g.desc}</p>
+    </div>
+  `).join('') || '';
+}
+
+function renderWhyChooseUs() {
+  const a = ABOUT_DATA;
+  const el = document.getElementById('whyGrid');
+  if (!el) return;
+
+  // Default 4 pillars — overridden by guarantee1–4 from GAS if present
+  const defaults = [
+    { icon:'🛡️', title:'Licensed &amp; Insured', desc:'Fully certified and covered for your peace of mind' },
+    { icon:'⭐', title:'5★ Google Rating',     desc:'Trusted by dozens of satisfied clients in {{SERVICE_AREA}}' },
+    { icon:'⏰', title:'Organized &amp; On Time', desc:'Clear communication and a process that keeps your project on schedule' },
+    { icon:'🏆', title:((a.yearsInBusiness || '10+') + ' Years Experience'), desc:'Decade of excellence in ' + ('{{INDUSTRY_TITLE}}' || 'home services') },
+  ];
+
+  const ICONS = ['🛡️','⭐','⏰','🏆','💰','🔒','✅','📋'];
+  const pillars = [];
+  for (let i = 1; i <= 4; i++) {
+    const t = a['guarantee'+i+'Title'];
+    if (t) {
+      pillars.push({ icon: ICONS[i-1], title: t, desc: a['guarantee'+i+'Desc'] || '' });
+    } else {
+      pillars.push(defaults[i-1]);
+    }
+  }
+
+  el.innerHTML = pillars.map(p => `
+    <div class="why-card">
+      <div class="why-icon-wrap">${p.icon}</div>
+      <h4>${p.title}</h4>
+      <p>${p.desc}</p>
+    </div>
+  `).join('');
+}
+
+
+   ═══════════════════════════════════════ */
+let inquiryType = 'question';
+
+function initInquiry() {
+  const selector = document.getElementById('inquiryTypeSelector');
+  selector.querySelectorAll('.inquiry-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      inquiryType = btn.dataset.type;
+      selector.querySelectorAll('.inquiry-type-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      updateInquiryForm();
+    });
+  });
+  document.getElementById('btnSubmitInquiry').addEventListener('click', submitInquiry);
+  updateInquiryForm();
+}
+
+function updateInquiryForm() {
+  const svcGroup = document.getElementById('iqServiceGroup');
+  const msgGroup = document.getElementById('iqMessageGroup');
+  const msgLabel = document.getElementById('iqMessageLabel');
+  const msgField = document.getElementById('iqMessage');
+
+  if (inquiryType === 'quote') {
+    svcGroup.style.display = 'block';
+    msgLabel.textContent = 'Project Details *';
+    msgField.placeholder = 'Describe the work you need done...';
+  } else if (inquiryType === 'callback') {
+    svcGroup.style.display = 'none';
+    msgLabel.textContent = 'What is this about? (optional)';
+    msgField.placeholder = 'Brief description so we can prepare...';
+  } else {
+    svcGroup.style.display = 'none';
+    msgLabel.textContent = 'Your Question *';
+    msgField.placeholder = 'How can we help?';
+  }
+}
+
+async function submitInquiry() {
+  const name = document.getElementById('iqName').value.trim();
+  const email = document.getElementById('iqEmail').value.trim();
+  const phone = document.getElementById('iqPhone').value.trim();
+  const message = document.getElementById('iqMessage').value.trim();
+
+  if (!name || !email || !phone) { showToast('Please fill name, email, and phone.', 'error'); return; }
+  if (inquiryType !== 'callback' && !message) { showToast('Please fill in the message.', 'error'); return; }
+
+  const btn = document.getElementById('btnSubmitInquiry');
+  setLoading(btn, true);
+  try {
+    const result = await postToGAS({
+      action: 'inquiry',
+      type: inquiryType,
+      name, email, phone, message,
+      service: inquiryType === 'quote' ? document.getElementById('iqService').value : '',
+      timestamp: new Date().toISOString()
+    });
+    console.log('Inquiry GAS response:', result);
+    if (result && result.email) {
+      console.log('Auto-reply email status:', result.email);
+      if (!result.email.sent) console.warn('Email not sent:', result.email);
+    }
+    const msgs = {
+      question: 'Question submitted! We\'ll respond within 2 hours.',
+      quote: 'Quote request submitted! We\'ll get back to you soon.',
+      callback: 'Callback requested! We\'ll call you shortly.'
+    };
+    showToast(msgs[inquiryType] || 'Submitted!');
+    ['iqName','iqEmail','iqPhone','iqMessage'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('iqService').selectedIndex = 0;
+  } catch (e) {
+    showToast('Something went wrong. Please try again.', 'error');
+  }
+  setLoading(btn, false);
+}
+
+/* ═══════════════════════════════════════
+   BOOKING FLOW (Book Service / Request Quote)
+   ═══════════════════════════════════════ */
+let bookingMode = 'book'; // 'book' or 'quote'
+let bkService = null, bkDate = null, bkTime = null;
+let calMonth, calYear;
+let availabilityCache = {};
+
+function initBooking() {
+  const now = new Date();
+  calMonth = now.getMonth();
+  calYear = now.getFullYear();
+  renderCalendar();
+  renderBookingSteps(1);
+
+  document.querySelectorAll('.booking-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      bookingMode = btn.dataset.mode;
+      document.querySelectorAll('.booking-mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateBookingMode();
+      resetBookingSteps();
+    });
+  });
+}
+
+function updateBookingMode() {
+  const isQuote = bookingMode === 'quote';
+  document.getElementById('bookingPageTitle').textContent = isQuote ? 'Request a Quote' : 'Book an Appointment';
+  document.getElementById('bookingPageDesc').textContent = isQuote
+    ? 'Select the service and tell us about your project. No commitment.'
+    : 'Select your service, pick a time, and confirm with a ${{DEPOSIT_AMOUNT}} deposit.';
+  document.getElementById('btnSubmitBooking').textContent = isQuote ? 'Submit Quote Request →' : 'Pay ${{DEPOSIT_AMOUNT}} Deposit & Book →';
+  document.getElementById('bkNotesLabel').textContent = isQuote ? 'Describe Your Project *' : 'Describe the Issue';
+  document.getElementById('bkNotes').placeholder = isQuote ? 'Details about the work needed...' : 'Tell us about the problem...';
+  const notice = document.getElementById('depositNotice');
+  if (notice) notice.style.display = isQuote ? 'none' : 'flex';
+}
+
+function resetBookingSteps() {
+  bkService = null; bkDate = null; bkTime = null;
+  document.getElementById('bookingConfirm').style.display = 'none';
+  document.getElementById('bookingSteps').style.display = 'flex';
+  ['bookingStep1','bookingStep2','bookingStep3'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('bookingStep1').style.display = 'block';
+  document.getElementById('btnStep1Next').disabled = true;
+  document.getElementById('btnStep2Next').disabled = true;
+  document.querySelectorAll('.service-select-btn').forEach(b => b.classList.remove('selected'));
+  ['bkName','bkEmail','bkPhone','bkAddress','bkNotes'].forEach(id => { document.getElementById(id).value = ''; });
+  renderBookingSteps(1);
+}
+
+function renderBookingSteps(step) {
+  const isQuote = bookingMode === 'quote';
+  const labels = isQuote ? ['Service', 'Your Info'] : ['Service', 'Date & Time', 'Your Info'];
+  const totalSteps = labels.length;
+
+  document.getElementById('bookingSteps').innerHTML = labels.map((l, i) => {
+    const num = i + 1;
+    return `
+      <div class="booking-step">
+        <div class="booking-step-num ${step > num ? 'done' : step === num ? 'active' : ''}">${step > num ? '✓' : num}</div>
+        <span class="booking-step-label ${step === num ? 'active' : ''}">${l}</span>
+      </div>
+      ${i < totalSteps - 1 ? `<div class="booking-step-line ${step > num ? 'done' : ''}"></div>` : ''}
+    `;
+  }).join('');
+}
+
+function goBookingStep(step) {
+  const isQuote = bookingMode === 'quote';
+
+  ['bookingStep1','bookingStep2','bookingStep3'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+
+  if (isQuote) {
+    if (step === 1) {
+      document.getElementById('bookingStep1').style.display = 'block';
+      renderBookingSteps(1);
+    } else {
+      document.getElementById('bookingStep3').style.display = 'block';
+      renderBookingSteps(2);
+      renderBookingSummary();
+    }
+  } else {
+    document.getElementById('bookingStep' + step).style.display = 'block';
+    renderBookingSteps(step);
+    if (step === 3) renderBookingSummary();
+  }
+}
+
+function selectService(id) {
+  bkService = SERVICES.find(s => (s.ID || s.id) === id);
+  if (bkService) {
+    bkService = {
+      id:       bkService.ID       || bkService.id,
+      name:     bkService.Name     || bkService.name,
+      icon:     bkService.Icon     || bkService.icon,
+      price:    bkService.Price    || bkService.price,
+      desc:     bkService.Description || bkService.desc,
+      duration: parseInt(bkService.Duration || bkService.duration) || 60,
+    };
+  }
+  document.querySelectorAll('.service-select-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.sid === id);
+  });
+  document.getElementById('btnStep1Next').disabled = false;
+
+  const btn = document.getElementById('btnStep1Next');
+  btn.onclick = function() { goBookingStep(2); };
+}
+
+/* ─── CALENDAR ─── */
+function renderCalendar() {
+  const d = new Date(calYear, calMonth, 1);
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const firstDay = d.getDay();
+  const today = new Date();
+
+  document.getElementById('calMonthLabel').textContent = d.toLocaleDateString('en-US', { month:'long', year:'numeric' });
+
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += '<div></div>';
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dt = new Date(calYear, calMonth, day);
+    const isPast = dt < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isSun = dt.getDay() === 0;
+    const disabled = isPast || isSun;
+    const isToday = dt.toDateString() === today.toDateString();
+    const isSelected = bkDate && new Date(bkDate).toDateString() === dt.toDateString();
+    html += `<button class="cal-day${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}" ${disabled ? 'disabled' : ''} data-iso="${dt.toISOString()}">${day}</button>`;
+  }
+  const container = document.getElementById('calDays');
+  container.innerHTML = html;
+  container.querySelectorAll('.cal-day:not(:disabled)').forEach(btn => {
+    btn.addEventListener('click', () => selectDate(btn.dataset.iso));
+  });
+}
+
+function calPrev() { if (calMonth === 0) { calMonth = 11; calYear--; } else calMonth--; renderCalendar(); }
+function calNext() { if (calMonth === 11) { calMonth = 0; calYear++; } else calMonth++; renderCalendar(); }
+
+function selectDate(iso) {
+  bkDate = iso;
+  bkTime = null;
+  renderCalendar();
+  document.getElementById('btnStep2Next').disabled = true;
+  fetchAvailability(iso);
+}
+
+/* ─── AVAILABILITY ─── */
+async function fetchAvailability(iso) {
+  const d = new Date(iso);
+  const dateKey = d.toISOString().slice(0, 10);
+  const duration = bkService ? bkService.duration : 60;
+
+  document.getElementById('timeSlotsLabel').textContent = 'Checking availability...';
+  const container = document.getElementById('timeSlots');
+  let loadingHTML = '';
+  for (let i = 0; i < 10; i++) loadingHTML += '<div class="time-slot loading-slot">Loading</div>';
+  container.innerHTML = loadingHTML;
+  document.getElementById('calSourceBadge').innerHTML = '';
+
+  const cacheKey = dateKey + '_' + duration;
+  if (availabilityCache[cacheKey]) {
+    renderAvailableSlots(availabilityCache[cacheKey]);
+    return;
+  }
+
+  try {
+    const res = await fetch(GAS_URL + '?action=getAvailability&date=' + encodeURIComponent(dateKey) + '&duration=' + duration);
+    const data = await res.json();
+    if (data.error) { renderDefaultTimeSlots(); return; }
+    availabilityCache[cacheKey] = data;
+    renderAvailableSlots(data);
+  } catch (e) {
+    console.log('Availability fetch failed, using defaults:', e);
+    renderDefaultTimeSlots();
+  }
+}
+
+function renderAvailableSlots(data) {
+  if (!bkDate) return;
+  const d = new Date(bkDate);
+  document.getElementById('timeSlotsLabel').textContent = 'Available — ' + d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+
+  const slots = data.slots || [];
+  if (!slots.length) {
+    document.getElementById('timeSlots').innerHTML = '<div class="slots-loading-msg">No available slots for this date.</div>';
+    document.getElementById('calSourceBadge').innerHTML = '';
+    return;
+  }
+
+  let html = '';
+  slots.forEach(slot => {
+    const sel = bkTime && bkTime.h === slot.hour && bkTime.m === slot.minute;
+    if (slot.available) {
+      html += `<button class="time-slot${sel ? ' selected' : ''}" data-h="${slot.hour}" data-m="${slot.minute}">${slot.label}</button>`;
+    } else {
+      html += `<div class="time-slot unavailable">${slot.label}</div>`;
+    }
+  });
+
+  const container = document.getElementById('timeSlots');
+  container.innerHTML = html;
+  container.querySelectorAll('.time-slot:not(.unavailable)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      bkTime = { h: parseInt(btn.dataset.h), m: parseInt(btn.dataset.m) };
+      renderAvailableSlots(data);
+      document.getElementById('btnStep2Next').disabled = false;
+    });
+  });
+
+  const badge = document.getElementById('calSourceBadge');
+  if (data.source === 'calendar') {
+    badge.innerHTML = '<div class="cal-source-badge live">📅 Live availability from Google Calendar</div>';
+  } else {
+    badge.innerHTML = '<div class="cal-source-badge">Standard business hours</div>';
+  }
+}
+
+function renderDefaultTimeSlots() {
+  if (!bkDate) return;
+  const d = new Date(bkDate);
+  document.getElementById('timeSlotsLabel').textContent = 'Available — ' + d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+
+  let html = '';
+  for (let h = 8; h <= 17; h++) {
+    for (const m of [0, 30]) {
+      if (h === 17 && m === 30) continue;
+      const label = fmtTime(h, m);
+      const sel = bkTime && bkTime.h === h && bkTime.m === m;
+      html += `<button class="time-slot${sel ? ' selected' : ''}" data-h="${h}" data-m="${m}">${label}</button>`;
+    }
+  }
+  const container = document.getElementById('timeSlots');
+  container.innerHTML = html;
+  container.querySelectorAll('.time-slot').forEach(btn => {
+    btn.addEventListener('click', () => {
+      bkTime = { h: parseInt(btn.dataset.h), m: parseInt(btn.dataset.m) };
+      renderDefaultTimeSlots();
+      document.getElementById('btnStep2Next').disabled = false;
+    });
+  });
+
+  document.getElementById('calSourceBadge').innerHTML = '<div class="cal-source-badge">Standard business hours</div>';
+}
+
+function fmtTime(h, m) { const ampm = h >= 12 ? 'PM' : 'AM'; return (h % 12 || 12) + ':' + String(m).padStart(2,'0') + ' ' + ampm; }
+function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
+
+function renderBookingSummary() {
+  const isQuote = bookingMode === 'quote';
+  let html = `<div><div class="booking-summary-label">Type</div><div class="booking-summary-value">${isQuote ? 'Quote Request' : 'Appointment'}</div></div>`;
+  html += `<div><div class="booking-summary-label">Service</div><div class="booking-summary-value">${bkService ? bkService.name : '—'}</div></div>`;
+  if (!isQuote) {
+    html += `<div><div class="booking-summary-label">Date</div><div class="booking-summary-value">${bkDate ? fmtDate(bkDate) : '—'}</div></div>`;
+    html += `<div><div class="booking-summary-label">Time</div><div class="booking-summary-value">${bkTime ? fmtTime(bkTime.h, bkTime.m) : '—'}</div></div>`;
+  }
+  document.getElementById('bookingSummary').innerHTML = html;
+}
+
+function resetBookingAndGoHome() {
+  bookingMode = 'book';
+  document.querySelectorAll('.booking-mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('modeBook').classList.add('active');
+  updateBookingMode();
+  resetBookingSteps();
+  showPage('home');
+}
+
+/* ═══════════════════════════════════════
+   FORM SUBMISSIONS
+   ═══════════════════════════════════════ */
+function showToast(msg, type) {
+  type = type || 'success';
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 3500);
+}
+
+function setLoading(btn, loading) {
+  if (loading) {
+    btn.dataset.originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner"></span> Sending...';
+    btn.disabled = true;
+  } else {
+    btn.innerHTML = btn.dataset.originalText;
+    btn.disabled = false;
+  }
+}
+
+async function postToGAS(payload) {
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  });
+  return await res.json();
+}
+
+async function submitBooking() {
+  const name = document.getElementById('bkName').value.trim();
+  const email = document.getElementById('bkEmail').value.trim();
+  const phone = document.getElementById('bkPhone').value.trim();
+  if (!name || !email || !phone) { showToast('Please fill all required fields.', 'error'); return; }
+
+  const isQuote = bookingMode === 'quote';
+  if (isQuote) {
+    const notes = document.getElementById('bkNotes').value.trim();
+    if (!notes) { showToast('Please describe your project.', 'error'); return; }
+  }
+
+  const btn = document.getElementById('btnSubmitBooking');
+  setLoading(btn, true);
+
+  try {
+    if (isQuote) {
+      const result = await postToGAS({
+        action: 'quote',
+        name, email, phone,
+        desc: document.getElementById('bkNotes').value.trim(),
+        service: bkService ? bkService.name : '',
+        address: document.getElementById('bkAddress').value.trim(),
+        contactMethod: 'phone',
+        timestamp: new Date().toISOString()
+      });
+      document.getElementById('confirmTitle').textContent = 'Quote Request Sent!';
+      document.getElementById('confirmDesc').textContent = 'We\'ve received your request and will get back to you within 2 hours with a free estimate.';
+      if (result && result.email && result.email.sent) {
+        document.getElementById('confirmEmail').textContent = 'A confirmation email has been sent to ' + email;
+      } else {
+        document.getElementById('confirmEmail').textContent = '';
+      }
+      ['bookingStep1','bookingStep2','bookingStep3'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+      document.getElementById('bookingSteps').style.display = 'none';
+      document.querySelector('.booking-mode-toggle').style.display = 'none';
+      document.getElementById('bookingConfirm').style.display = 'block';
+      showToast('Quote request submitted!');
+
+    } else {
+      const appointmentId = 'APPT-' + Date.now();
+
+      try {
+        const gasResult = await postToGAS({
+          action: 'appointment',
+          name, email, phone,
+          address: document.getElementById('bkAddress').value.trim(),
+          notes: document.getElementById('bkNotes').value.trim(),
+          service: bkService ? bkService.name : '',
+          date: bkDate ? fmtDate(bkDate) : '',
+          time: bkTime ? fmtTime(bkTime.h, bkTime.m) : '',
+          duration: bkService ? bkService.duration : 60,
+          appointmentId,
+          status: 'Pending Payment',
+          timestamp: new Date().toISOString()
+        });
+        if (!gasResult || !gasResult.success) {
+          console.error('GAS failed to log appointment before Stripe redirect:', gasResult);
+        }
+      } catch (gasErr) {
+        console.error('GAS unreachable before Stripe redirect:', gasErr);
+      }
+
+      if (!STRIPE_WORKER_URL || STRIPE_WORKER_URL.startsWith('YOUR_')) {
+        showToast('Booked! (Stripe not configured — no deposit collected)', 'info');
+        document.getElementById('confirmTitle').textContent = 'You\'re Booked!';
+        document.getElementById('confirmDesc').textContent = 'We\'ve received your appointment. You\'ll get a confirmation call within the hour.';
+        document.getElementById('confirmEmail').textContent = '';
+        ['bookingStep1','bookingStep2','bookingStep3'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+        document.getElementById('bookingSteps').style.display = 'none';
+        document.querySelector('.booking-mode-toggle').style.display = 'none';
+        document.getElementById('bookingConfirm').style.display = 'block';
+        setLoading(btn, false);
+        return;
+      }
+
+      const res = await fetch(STRIPE_WORKER_URL + '/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: name,
+          customerEmail: email,
+          service: bkService ? bkService.name : '{{INDUSTRY_TITLE}} Service',
+          appointmentDate: bkDate ? fmtDate(bkDate) : '',
+          appointmentTime: bkTime ? fmtTime(bkTime.h, bkTime.m) : '',
+          appointmentId,
+        })
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        showToast('Payment setup failed: ' + (data.error || 'Unknown error'), 'error');
+        setLoading(btn, false);
+      }
+    }
+  } catch (e) {
+    showToast('Something went wrong. Please try again.', 'error');
+    setLoading(btn, false);
+  }
+
+  if (bookingMode === 'quote') setLoading(btn, false);
+}
+
+async function submitContact() {
+  const name = document.getElementById('ctName').value.trim();
+  const email = document.getElementById('ctEmail').value.trim();
+  const message = document.getElementById('ctMessage').value.trim();
+  if (!name || !email || !message) { showToast('Please fill all fields.', 'error'); return; }
+
+  const btn = document.getElementById('btnContact');
+  setLoading(btn, true);
+  try {
+    await postToGAS({ action: 'contact', name, email, message, timestamp: new Date().toISOString() });
+    showToast('Message sent! A confirmation has been emailed to you.');
+    ['ctName','ctEmail','ctMessage'].forEach(id => { document.getElementById(id).value = ''; });
+  } catch (e) {
+    showToast('Something went wrong.', 'error');
+  }
+  setLoading(btn, false);
+}
+
+/* ═══════════════════════════════════════
+   ABOUT PAGE RENDERER
+   ═══════════════════════════════════════ */
+function renderAbout() {
+  const a = ABOUT_DATA;
+  const hl = document.getElementById('aboutHeadline');
+  const sl = document.getElementById('aboutSubheadline');
+  const st = document.getElementById('aboutStory');
+  const ms = document.getElementById('aboutMission');
+  if (hl && a.headline)    hl.textContent = a.headline;
+  if (sl && a.subheadline) sl.textContent = a.subheadline;
+  if (st && a.story)       st.textContent = a.story;
+  if (ms && a.mission)     ms.textContent = '"' + a.mission + '"';
+  if (a.yearsInBusiness)  { const el = document.getElementById('statYears');        if(el) el.textContent = a.yearsInBusiness; }
+  if (a.jobsCompleted)    { const el = document.getElementById('statJobs');         if(el) el.textContent = a.jobsCompleted; }
+  if (a.satisfactionRate) { const el = document.getElementById('statSatisfaction'); if(el) el.textContent = a.satisfactionRate; }
+  if (a.teamSize)         { const el = document.getElementById('statTeam');         if(el) el.textContent = a.teamSize; }
+  renderTeam();
+}
+
+/* ═══════════════════════════════════════
+   LOAD SITE DATA FROM GAS
+   ═══════════════════════════════════════ */
+async function loadSiteData() {
+  // Skip GAS fetch entirely if the worker URL is still a placeholder or not configured
+  if (!GAS_URL || GAS_URL.startsWith('{{') || !GAS_URL.startsWith('http')) {
+    SERVICES = SERVICES_FALLBACK;
+    return;
+  }
+  const [svcRes, revRes, aboutRes] = await Promise.allSettled([
+    fetch(GAS_URL + '?action=getServices'),
+    fetch(GAS_URL + '?action=getReviews'),
+    fetch(GAS_URL + '?action=getAbout'),
+  ]);
+
+  try {
+    const svcData = await svcRes.value.json();
+    if (Array.isArray(svcData) && svcData.length) {
+      SERVICES = svcData.filter(s => s.Active !== false && s.Active !== 'FALSE');
+    } else {
+      SERVICES = SERVICES_FALLBACK;
+    }
+  } catch(e) {
+    SERVICES = SERVICES_FALLBACK;
+  }
+
+  try {
+    const revData = await revRes.value.json();
+    REVIEWS = Array.isArray(revData) ? revData : [];
+  } catch(e) { REVIEWS = []; }
+
+  try {
+    const aboutData = await aboutRes.value.json();
+    if (aboutData && typeof aboutData === 'object' && !aboutData.error) {
+      ABOUT_DATA = aboutData;
+    }
+  } catch(e) {}
+
+  renderServiceCards('homeServicesGrid');
+  renderServiceCards('servicesGrid');
+  renderServiceSelectGrid();
+  renderInquiryServiceOptions();
+  renderReviews();
+  renderAbout();
+  renderWhyChooseUs();
+}
+
+/* ═══════════════════════════════════════
+   PARALLAX HERO IMAGE
+   ═══════════════════════════════════════ */
+(function initParallax() {
+  var img = document.getElementById('siteHeroImg');
+  if (!img) return;
+
+  function onScroll() {
+    var wrap = document.getElementById('siteHeroWrap');
+    if (!wrap || wrap.classList.contains('hero-missing')) return;
+    // Hero wrap starts visually at y=0 (behind the nav via negative margin).
+    // scrollY=0 means we're at the top; as user scrolls down the image moves up slower.
+    img.style.transform = 'translateY(' + (window.pageYOffset * 0.38) + 'px)';
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+/* ═══════════════════════════════════════
+   GOOGLE REVIEWS — LIVE PULL
+   Requires: {{GOOGLE_PLACE_ID}} and {{GOOGLE_MAPS_API_KEY}} tokens
+   Falls back gracefully if not configured.
+   ═══════════════════════════════════════ */
+(function initGoogleReviews() {
+  const PLACE_ID  = '{{GOOGLE_PLACE_ID}}';
+  const API_KEY   = '{{GOOGLE_MAPS_API_KEY}}';
+  const STRIP     = document.getElementById('googleReviewsStrip');
+  const SCROLL    = document.getElementById('grReviewsScroll');
+
+  // Only run if both tokens are filled in (not still the template placeholder)
+  if (!PLACE_ID || PLACE_ID.includes('{{') || !API_KEY || API_KEY.includes('{{')) return;
+
+  function renderStars(rating) {
+    const full = Math.round(rating);
+    return '★'.repeat(full) + '☆'.repeat(Math.max(0, 5-full));
+  }
+
+  function loadPlaceDetails() {
+    // Use the Places API via a script callback
+    const callbackName = '__grCallback_' + Date.now();
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      if (data.status !== 'OK') return;
+      const place = data.result;
+      const rating = place.rating || 0;
+      const total  = place.user_ratings_total || 0;
+      const reviews = (place.reviews || []).slice(0, 5);
+
+      document.getElementById('grBusinessName').textContent = place.name || '{{COMPANY_NAME}}';
+      document.getElementById('grRating').textContent = rating.toFixed(1);
+      document.getElementById('grCount').textContent = '(' + total + ' reviews)';
+      document.getElementById('grStars').textContent = renderStars(rating);
+
+      // Link to write a review
+      document.getElementById('grWriteLink').href =
+        'https://search.google.com/local/writereview?placeid=' + PLACE_ID;
+
+      if (reviews.length) {
+        SCROLL.innerHTML = reviews.map(r => `
+          <div style="flex-shrink:0;max-width:280px;background:#fff;border:1px solid var(--border-light);border-radius:10px;padding:12px 16px;cursor:default;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent);flex-shrink:0;">${(r.author_name||'?')[0].toUpperCase()}</div>
+              <div>
+                <div style="font-size:12px;font-weight:600;">${r.author_name || 'Customer'}</div>
+                <div style="color:#f5a623;font-size:11px;">${renderStars(r.rating)}</div>
+              </div>
+            </div>
+            <p style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${r.text || ''}</p>
+          </div>
+        `).join('');
+        STRIP.style.display = '';
+      }
+    };
+
+    const fields = 'name,rating,user_ratings_total,reviews';
+    const src = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${PLACE_ID}&fields=${fields}&key=${API_KEY}&callback=${callbackName}`;
+
+    // CORS note: direct Places API calls require a server proxy in production.
+    // Here we use the JS SDK approach via a dynamic script tag.
+    const s = document.createElement('script');
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&callback=${callbackName}_init`;
+    window[callbackName + '_init'] = function() {
+      const service = new google.maps.places.PlacesService(document.createElement('div'));
+      service.getDetails({ placeId: PLACE_ID, fields: ['name','rating','user_ratings_total','reviews'] }, function(place, status) {
+        window[callbackName]({ status, result: place });
+      });
+    };
+    document.head.appendChild(s);
+  }
+
+  // Refresh every 30 minutes for live updates
+  loadPlaceDetails();
+  setInterval(loadPlaceDetails, 30 * 60 * 1000);
+})();
+
+/* ═══════════════════════════════════════
+   HERO LEAD FORM SUBMIT
+   ═══════════════════════════════════════ */
+function submitHeroLead() {
+  const name    = document.getElementById('hlName').value.trim();
+  const phone   = document.getElementById('hlPhone').value.trim();
+  const email   = document.getElementById('hlEmail').value.trim();
+  const zip     = document.getElementById('hlZip').value.trim();
+  const consent = document.getElementById('hlConsent').checked;
+
+  if (!name || !phone || !email || !zip) { showToast('Please fill in all required fields.', 'error'); return; }
+  if (!consent) { showToast('Please consent to receive communications.', 'error'); return; }
+
+  const btn = document.getElementById('btnHeroLead');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Sending...';
+
+  submitToGAS({ type:'hero_lead', name, phone, email, zip })
+    .then(() => {
+      btn.innerHTML = '✓ We\'ll be in touch soon!';
+      btn.style.background = '#27ae60';
+      ['hlName','hlPhone','hlEmail','hlZip'].forEach(id => document.getElementById(id).value = '');
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.innerHTML = 'Get Free Quote';
+      showToast('Something went wrong. Please call us directly.', 'error');
+    });
+}
+
+function submitToGAS(data) {
+  if (!GAS_URL || GAS_URL.includes('{{')) return Promise.resolve();
+  return fetch(GAS_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action: 'submitLead', ...data })
+  });
+}
+
+/* ═══════════════════════════════════════
+   VIDEO TESTIMONIALS
+   Probes testimonial1.mp4, testimonial2.mp4 …
+   Stops on first 404. Shows 3 initially,
+   "Show More" for the rest.
+   IntersectionObserver: autoplay when 50%
+   visible, pause when scrolled away.
+   Ends: auto-advance to next visible video.
+   ═══════════════════════════════════════ */
+(function initTestimonials() {
+  var INITIAL_VISIBLE = 3;
+  var BADGE_TEXT      = '{{TESTIMONIALS_BADGE}}';
+  if (!BADGE_TEXT || BADGE_TEXT.includes('{{')) BADGE_TEXT = '30+ Testimonials';
+
+  var META_RAW = '{{TESTIMONIALS_META}}';
+  var metaLines = (META_RAW && !META_RAW.includes('{{'))
+    ? META_RAW.split('\n').map(function(l){ return l.split('|'); })
+    : [];
+
+  var loadedSrcs = [];
+  var videoEls   = [];
+  var currentIdx = -1;
+  var ioRef      = null;
+
+  function getMeta(i) {
+    var m = metaLines[i];
+    return {
+      label:    m && m[0] ? m[0].trim() : ('Testimonial #' + (i+1)),
+      location: m && m[1] ? m[1].trim() : '',
+      score:    m && m[2] ? m[2].trim() : '10/10',
+      quote:    m && m[3] ? m[3].trim() : '',
+    };
+  }
+
+  function probeVideos(index, onDone) {
+    var src = 'testimonial' + index + '.mp4';
+    fetch(src, { method: 'HEAD' })
+      .then(function(r) {
+        if (r.ok) { loadedSrcs.push(src); probeVideos(index + 1, onDone); }
+        else onDone();
+      })
+      .catch(function() { onDone(); });
+  }
+
+  function playVideo(idx) {
+    videoEls.forEach(function(v, i) {
+      if (i !== idx) { v.pause(); v.currentTime = 0; }
+    });
+    if (videoEls[idx]) {
+      videoEls[idx].play().catch(function(){});
+      currentIdx = idx;
+    }
+  }
+
+  function isVisible(el) {
+    var r = el.getBoundingClientRect();
+    return r.top < window.innerHeight && r.bottom > 0;
+  }
+
+  function findNextVisible(afterIdx) {
+    for (var i = afterIdx + 1; i < videoEls.length; i++) {
+      var card = videoEls[i].closest('.tst-card');
+      if (card && getComputedStyle(card).display !== 'none' && isVisible(videoEls[i])) return i;
+    }
+    return -1;
+  }
+
+  function buildGrid() {
+    var grid    = document.getElementById('testimonialsGrid');
+    var section = document.getElementById('testimonialsSection');
+    var moreBtn = document.getElementById('testimonialsMoreBtn');
+    if (!grid) return;
+    if (!loadedSrcs.length) {
+      if (section) section.classList.add('tst-empty');
+      return;
+    }
+
+    loadedSrcs.forEach(function(src, i) {
+      var meta = getMeta(i);
+      var card = document.createElement('div');
+      card.className = 'tst-card' + (i >= INITIAL_VISIBLE ? ' tst-overflow' : '');
+      card.dataset.index = i;
+
+      var stars = '★★★★★';
+      card.innerHTML =
+        '<div class="tst-video-wrap" data-idx="' + i + '">' +
+          '<video src="' + src + '" preload="metadata" playsinline muted></video>' +
+          '<div class="tst-play-overlay" id="tst-ov-' + i + '">' +
+            '<div class="tst-play-btn">' +
+              '<svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>' +
+            '</div>' +
+          '</div>' +
+          '<div class="tst-badge">' + BADGE_TEXT + '</div>' +
+        '</div>' +
+        '<div class="tst-body">' +
+          '<div class="tst-stars">' + stars + '</div>' +
+          '<div class="tst-score">' + meta.score + '</div>' +
+          (meta.location ? '<div class="tst-location">' + meta.location + '</div>' : '') +
+          (meta.quote    ? '<p class="tst-quote">&ldquo;' + meta.quote + '&rdquo;</p>' : '') +
+        '</div>';
+
+      grid.appendChild(card);
+
+      var vid     = card.querySelector('video');
+      var overlay = card.querySelector('.tst-play-overlay');
+      var wrap    = card.querySelector('.tst-video-wrap');
+      videoEls.push(vid);
+
+      wrap.addEventListener('click', function() {
+        if (vid.paused) {
+          playVideo(i);
+        } else {
+          vid.pause();
+        }
+      });
+      vid.addEventListener('pause', function() { overlay.classList.remove('hidden'); });
+      vid.addEventListener('play',  function() { overlay.classList.add('hidden'); });
+      vid.addEventListener('ended', function() {
+        overlay.classList.remove('hidden');
+        var next = findNextVisible(i);
+        if (next !== -1) playVideo(next);
+      });
+    });
+
+    if (loadedSrcs.length > INITIAL_VISIBLE && moreBtn) {
+      moreBtn.classList.remove('hidden');
+      moreBtn.textContent = 'Show More (' + (loadedSrcs.length - INITIAL_VISIBLE) + ' more)';
+      moreBtn.addEventListener('click', function() {
+        grid.querySelectorAll('.tst-overflow').forEach(function(el){ el.classList.add('tst-shown'); });
+        moreBtn.classList.add('hidden');
+        setupIO();
+      });
+    }
+
+    setupIO();
+  }
+
+  function setupIO() {
+    if (!('IntersectionObserver' in window)) return;
+    if (ioRef) ioRef.disconnect();
+    ioRef = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        var vid = entry.target.querySelector('video');
+        if (!vid) return;
+        if (!entry.isIntersecting && !vid.paused) {
+          vid.pause();
+          if (parseInt(entry.target.dataset.index) === currentIdx) currentIdx = -1;
+        }
+        // Autoplay first video that enters viewport when nothing is currently playing
+        if (entry.isIntersecting && currentIdx === -1) {
+          var idx = parseInt(entry.target.dataset.index);
+          if (!isNaN(idx)) playVideo(idx);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.tst-card:not(.tst-overflow), .tst-card.tst-shown').forEach(function(card) {
+      ioRef.observe(card);
+    });
+  }
+
+  probeVideos(1, buildGrid);
+})();
+
+/* ═══════════════════════════════════════
+   GALLERY — PROCEDURAL IMAGE LOADER
+   Works on GitHub Pages (pure client-side)
+   image1.png, image2.png, image3.png ...
+   Stops silently on first 404, no errors thrown.
+   Shows first 5, "Show More" for additional.
+   ═══════════════════════════════════════ */
+(function initGallery() {
+  var INITIAL_VISIBLE = 5;
+  var loadedSrcs      = [];
+  var lbIndex         = 0;
+
+  function probeImages(index, onDone) {
+    var src = 'image' + index + '.png';
+    var testImg = new Image();
+    testImg.onload  = function() { loadedSrcs.push(src); probeImages(index + 1, onDone); };
+    testImg.onerror = function() { onDone(); };
+    testImg.src = src;
+  }
+
+  function buildGrid() {
+    var grid    = document.getElementById('galleryGrid');
+    var section = document.getElementById('gallerySection');
+    var moreBtn = document.getElementById('galleryMoreBtn');
+    if (!grid) return;
+
+    if (loadedSrcs.length === 0) {
+      if (section) section.classList.add('gallery-empty');
+      return;
+    }
+
+    loadedSrcs.forEach(function(src, i) {
+      var item = document.createElement('div');
+      item.className = 'gallery-item' + (i >= INITIAL_VISIBLE ? ' gallery-overflow' : '');
+      item.setAttribute('data-index', i);
+      item.setAttribute('tabindex', '0');
+      item.setAttribute('role', 'button');
+      item.setAttribute('aria-label', 'View photo ' + (i + 1));
+
+      var img = document.createElement('img');
+      img.src      = src;
+      img.alt      = 'Work photo ' + (i + 1);
+      img.loading  = 'lazy';
+      img.decoding = 'async';
+
+      var zoomIcon = document.createElement('div');
+      zoomIcon.className   = 'gallery-zoom-icon';
+      zoomIcon.textContent = '🔍';
+
+      item.appendChild(img);
+      item.appendChild(zoomIcon);
+      grid.appendChild(item);
+
+      item.addEventListener('click', function() { openLightbox(i); });
+      item.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); }
+      });
+    });
+
+    if (loadedSrcs.length > INITIAL_VISIBLE && moreBtn) {
+      moreBtn.classList.remove('hidden');
+      moreBtn.textContent = 'Show More Photos (' + (loadedSrcs.length - INITIAL_VISIBLE) + ' more)';
+      moreBtn.addEventListener('click', function() {
+        grid.querySelectorAll('.gallery-overflow').forEach(function(el) {
+          el.classList.add('gallery-shown');
+        });
+        moreBtn.classList.add('hidden');
+        setTimeout(revealVisible, 50);
+      });
+    }
+
+    revealVisible();
+  }
+
+  function revealVisible() {
+    var items = document.querySelectorAll(
+      '.gallery-item:not(.gallery-overflow), .gallery-item.gallery-shown'
+    );
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.06 });
+      items.forEach(function(el) {
+        if (!el.classList.contains('visible')) io.observe(el);
+      });
+    } else {
+      items.forEach(function(el) { el.classList.add('visible'); });
+    }
+  }
+
+  /* ── Lightbox ── */
+  function openLightbox(index) {
+    lbIndex = index;
+    updateLightbox();
+    document.getElementById('galleryLightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('galleryLightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function updateLightbox() {
+    var lbImg     = document.getElementById('galleryLbImg');
+    var lbCounter = document.getElementById('galleryLbCounter');
+    var lbPrev    = document.getElementById('galleryLbPrev');
+    var lbNext    = document.getElementById('galleryLbNext');
+    if (lbImg)     lbImg.src = loadedSrcs[lbIndex];
+    if (lbCounter) lbCounter.textContent = (lbIndex + 1) + ' / ' + loadedSrcs.length;
+    if (lbPrev)    lbPrev.classList.toggle('hidden', lbIndex === 0);
+    if (lbNext)    lbNext.classList.toggle('hidden', lbIndex === loadedSrcs.length - 1);
+  }
+
+  var lbClose = document.getElementById('galleryLbClose');
+  var lbPrev  = document.getElementById('galleryLbPrev');
+  var lbNext  = document.getElementById('galleryLbNext');
+  var lbBox   = document.getElementById('galleryLightbox');
+
+  if (lbClose) lbClose.addEventListener('click', closeLightbox);
+  if (lbBox)   lbBox.addEventListener('click', function(e) { if (e.target === lbBox) closeLightbox(); });
+  if (lbPrev)  lbPrev.addEventListener('click', function() { if (lbIndex > 0) { lbIndex--; updateLightbox(); } });
+  if (lbNext)  lbNext.addEventListener('click', function() { if (lbIndex < loadedSrcs.length - 1) { lbIndex++; updateLightbox(); } });
+
+  document.addEventListener('keydown', function(e) {
+    if (!document.getElementById('galleryLightbox').classList.contains('open')) return;
+    if (e.key === 'Escape')     closeLightbox();
+    if (e.key === 'ArrowLeft'  && lbIndex > 0)                       { lbIndex--; updateLightbox(); }
+    if (e.key === 'ArrowRight' && lbIndex < loadedSrcs.length - 1)   { lbIndex++; updateLightbox(); }
+  });
+
+  probeImages(1, buildGrid);
+})();
+
+/* ═══════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════ */
+(function init() {
+  SERVICES = SERVICES_FALLBACK;
+  buildNav();
+  renderServiceCards('homeServicesGrid');
+  renderServiceCards('servicesGrid');
+  renderInquiryServiceOptions();
+  renderTeam();
+  renderWhyChooseUs();
+  initInquiry();
+  initBooking();
+  renderServiceSelectGrid();
+
+  loadSiteData().catch(e => console.warn('loadSiteData failed:', e));
+
+  const svcSelects = document.querySelectorAll('#iqService');
+  svcSelects.forEach(sel => {
+    SERVICES.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.Name || s.name;
+      opt.textContent = s.Name || s.name;
+      sel.appendChild(opt);
+    });
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('stripe') === 'success') {
+    const appt = params.get('appt') || '';
+    document.getElementById('confirmTitle').textContent = 'Payment Received! 🎉';
+    document.getElementById('confirmDesc').textContent =
+      'Your ${{DEPOSIT_AMOUNT}} deposit was processed and your appointment is confirmed. We\'ll call you within the hour.';
+    document.getElementById('confirmEmail').textContent =
+      appt ? 'Booking reference: ' + appt : '';
+    ['bookingStep1','bookingStep2','bookingStep3'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+    const steps = document.getElementById('bookingSteps');
+    const toggl = document.querySelector('.booking-mode-toggle');
+    if (steps)  steps.style.display = 'none';
+    if (toggl)  toggl.style.display = 'none';
+    document.getElementById('bookingConfirm').style.display = 'block';
+    showPage('booking');
+  }
+})();
+</script>
+</body>
+</html>
