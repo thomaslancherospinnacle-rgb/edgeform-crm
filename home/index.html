@@ -356,6 +356,64 @@
   .drawer-signout:hover { background: rgba(255,92,92,0.15); }
 
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ════ BILLING ════ */
+  .billing-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; width: fit-content; }
+  .billing-tab  { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 7px 18px; border-radius: 7px; border: none; background: none; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+  .billing-tab:hover { color: var(--text-dim); }
+  .billing-tab.active { background: var(--surface2); color: var(--accent-bright); border: 1px solid var(--border-hi); }
+
+  .billing-pane { display: none; }
+  .billing-pane.active { display: block; animation: fadeUp 0.25s ease both; }
+
+  .billing-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .billing-layout { grid-template-columns: 1fr; } }
+
+  .bill-form { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .bill-form-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .bill-form-title { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; }
+  .bill-form-body { padding: 22px; }
+
+  .amount-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .interval-row { display: flex; gap: 8px; }
+  .interval-btn { flex: 1; font-family: var(--mono); font-size: 11px; padding: 9px; border-radius: 7px; border: 1px solid var(--border); background: none; color: var(--text-muted); cursor: pointer; transition: all 0.15s; text-align: center; }
+  .interval-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+  .interval-btn.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-bright); font-weight: 500; }
+
+  .amount-prefix { position: relative; }
+  .amount-prefix .dollar { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: 13px; color: var(--text-muted); pointer-events: none; }
+  .amount-prefix .c-input { padding-left: 24px; }
+
+  .bill-summary { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: sticky; top: calc(var(--nav-h) + 16px); }
+  .bill-summary-head { padding: 14px 18px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; }
+  .bill-summary-body { padding: 18px; }
+  .bill-sum-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .bill-sum-row:last-child { margin-bottom: 0; }
+  .bill-sum-label { font-family: var(--mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .bill-sum-val { font-family: var(--mono); font-size: 13px; color: var(--text); }
+  .bill-sum-val.accent { color: var(--accent-bright); }
+  .bill-sum-val.green  { color: var(--green); }
+  .bill-sum-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+  .bill-result { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-top: 16px; display: none; }
+  .bill-result.show { display: block; animation: fadeUp 0.25s ease both; }
+  .bill-result-url { font-family: var(--mono); font-size: 11px; color: var(--accent-bright); word-break: break-all; margin: 10px 0; }
+  .bill-result-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .bill-result .action-btn { font-family: var(--mono); font-size: 10px; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-dim); cursor: pointer; transition: all 0.15s; }
+  .bill-result .action-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+  .bill-result .action-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .qr-img { width: 120px; height: 120px; border-radius: 8px; border: 1px solid var(--border); margin-top: 12px; display: none; }
+
+  .inv-table { width: 100%; border-collapse: collapse; }
+  .inv-table th { font-family: var(--mono); font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .inv-table td { font-size: 12px; padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text-dim); vertical-align: middle; }
+  .inv-table tr:last-child td { border-bottom: none; }
+  .inv-table tr:hover td { background: rgba(123,108,255,0.04); }
+
+  .bill-msg { font-family: var(--mono); font-size: 11px; padding: 9px 12px; border-radius: 6px; margin-top: 10px; display: none; border: 1px solid; }
+  .bill-msg.show    { display: block; }
+  .bill-msg.success { color: var(--green); border-color: rgba(61,255,160,0.3); background: rgba(61,255,160,0.06); }
+  .bill-msg.error   { color: var(--red);   border-color: rgba(255,92,92,0.3);   background: rgba(255,92,92,0.07); }
 </style>
 </head>
 <body>
@@ -415,6 +473,9 @@
     <a class="drawer-item" id="drawer-nav-email-page" href="#" onclick="drawerNav('email')">
       <span class="drawer-item-icon">✉</span> Email
     </a>
+    <a class="drawer-item" id="drawer-nav-billing-page" href="#" onclick="drawerNav('billing')">
+      <span class="drawer-item-icon">💳</span> Billing
+    </a>
 
     <div class="drawer-section-label" style="margin-top:8px;">Tools</div>
     <a class="drawer-item" href="/pipeline/index.html">
@@ -445,6 +506,9 @@
       </a>
       <a class="side-item" id="nav-email-page" href="#" onclick="showPage('email');return false;">
         <span class="side-icon">✉</span> Email
+      </a>
+      <a class="side-item" id="nav-billing-page" href="#" onclick="showPage('billing');return false;">
+        <span class="side-icon">💳</span> Billing
       </a>
     </div>
     <div class="side-section">
@@ -645,8 +709,182 @@
       </div>
     </div>
 
+    <!-- ══ BILLING ══ -->
+    <div class="page-view" id="page-billing">
+      <div class="page-head">
+        <div class="page-title">Billing</div>
+        <div class="page-sub">Create invoices and subscriptions for your clients</div>
+      </div>
+
+      <div class="billing-tabs">
+        <button class="billing-tab active" id="btab-invoice"      onclick="switchBillingTab('invoice')">One-Time Invoice</button>
+        <button class="billing-tab"        id="btab-subscription" onclick="switchBillingTab('subscription')">Subscription</button>
+        <button class="billing-tab"        id="btab-history"      onclick="switchBillingTab('history')">History</button>
+      </div>
+
+      <!-- ── ONE-TIME INVOICE ── -->
+      <div class="billing-pane active" id="bpane-invoice">
+        <div class="billing-layout">
+          <div class="bill-form">
+            <div class="bill-form-head"><span class="bill-form-title">New Invoice</span></div>
+            <div class="bill-form-body">
+              <div class="c-field">
+                <label>Client Name</label>
+                <input class="c-input" id="inv-name" type="text" placeholder="John Smith" oninput="updateInvSummary()">
+              </div>
+              <div class="c-field">
+                <label>Client Email</label>
+                <input class="c-input" id="inv-email" type="email" placeholder="client@example.com">
+              </div>
+              <div class="c-field">
+                <label>Service / Description</label>
+                <input class="c-input" id="inv-service" type="text" placeholder="Website Design — 5-page business site" oninput="updateInvSummary()">
+              </div>
+              <div class="amount-row">
+                <div class="c-field">
+                  <label>Invoice Amount</label>
+                  <div class="amount-prefix">
+                    <span class="dollar">$</span>
+                    <input class="c-input" id="inv-amount" type="number" min="0.50" step="0.01" placeholder="0.00" oninput="updateInvSummary()">
+                  </div>
+                </div>
+                <div class="c-field">
+                  <label>Invoice Ref (optional)</label>
+                  <input class="c-input" id="inv-ref" type="text" placeholder="INV-001">
+                </div>
+              </div>
+              <div class="c-field">
+                <label>Notes (optional)</label>
+                <textarea class="c-input" id="inv-notes" style="min-height:80px;resize:vertical;" placeholder="Any additional details for the client…"></textarea>
+              </div>
+              <button class="send-btn" id="inv-send-btn" onclick="createInvoice()">
+                <span class="btn-text">Generate Payment Link →</span>
+              </button>
+              <div class="bill-msg" id="inv-msg"></div>
+              <div class="bill-result" id="inv-result">
+                <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Payment Link</div>
+                <div class="bill-result-url" id="inv-result-url">—</div>
+                <img class="qr-img" id="inv-qr" src="" alt="QR Code">
+                <div class="bill-result-actions">
+                  <button class="action-btn primary" onclick="copyBillLink('inv-result-url')">📋 Copy Link</button>
+                  <button class="action-btn" onclick="openBillLink('inv-result-url')">↗ Open in Stripe</button>
+                  <button class="action-btn" onclick="emailInvoiceLink()">✉ Email to Client</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bill-summary">
+            <div class="bill-summary-head">Invoice Summary</div>
+            <div class="bill-summary-body">
+              <div class="bill-sum-row"><span class="bill-sum-label">Client</span><span class="bill-sum-val" id="sum-inv-name">—</span></div>
+              <div class="bill-sum-row"><span class="bill-sum-label">Service</span><span class="bill-sum-val" id="sum-inv-service">—</span></div>
+              <hr class="bill-sum-divider">
+              <div class="bill-sum-row"><span class="bill-sum-label">Amount Due</span><span class="bill-sum-val accent" id="sum-inv-amount">$0.00</span></div>
+              <div class="bill-sum-row"><span class="bill-sum-label">Type</span><span class="bill-sum-val">One-time</span></div>
+              <div class="bill-sum-row"><span class="bill-sum-label">Processor</span><span class="bill-sum-val">Stripe</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SUBSCRIPTION ── -->
+      <div class="billing-pane" id="bpane-subscription">
+        <div class="billing-layout">
+          <div class="bill-form">
+            <div class="bill-form-head"><span class="bill-form-title">New Subscription</span></div>
+            <div class="bill-form-body">
+              <div class="c-field">
+                <label>Client Name</label>
+                <input class="c-input" id="sub-name" type="text" placeholder="Jane's Nails" oninput="updateSubSummary()">
+              </div>
+              <div class="c-field">
+                <label>Client Email <span style="color:var(--red);">*</span></label>
+                <input class="c-input" id="sub-email" type="email" placeholder="client@example.com">
+              </div>
+              <div class="c-field">
+                <label>Service</label>
+                <input class="c-input" id="sub-service" type="text" placeholder="Website Management &amp; Hosting" oninput="updateSubSummary()">
+              </div>
+              <div class="amount-row">
+                <div class="c-field">
+                  <label>First Month Payment</label>
+                  <div class="amount-prefix">
+                    <span class="dollar">$</span>
+                    <input class="c-input" id="sub-first" type="number" min="0" step="0.01" placeholder="500.00" oninput="updateSubSummary()">
+                  </div>
+                </div>
+                <div class="c-field">
+                  <label>Recurring Payment</label>
+                  <div class="amount-prefix">
+                    <span class="dollar">$</span>
+                    <input class="c-input" id="sub-recurring" type="number" min="0.50" step="0.01" placeholder="150.00" oninput="updateSubSummary()">
+                  </div>
+                </div>
+              </div>
+              <div class="c-field">
+                <label>Billing Interval</label>
+                <div class="interval-row">
+                  <button class="interval-btn active" id="ibtn-month" onclick="setInterval2('month')">Monthly</button>
+                  <button class="interval-btn"        id="ibtn-year"  onclick="setInterval2('year')">Annually</button>
+                </div>
+              </div>
+              <div class="c-field">
+                <label>Notes (optional)</label>
+                <textarea class="c-input" id="sub-notes" style="min-height:70px;resize:vertical;" placeholder="Includes 5 pages, hosting, SSL, 2 updates/month…"></textarea>
+              </div>
+              <button class="send-btn" id="sub-send-btn" onclick="createSubscription()">
+                <span class="btn-text">Generate Subscription Checkout →</span>
+              </button>
+              <div class="bill-msg" id="sub-msg"></div>
+              <div class="bill-result" id="sub-result">
+                <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Checkout Link</div>
+                <div class="bill-result-url" id="sub-result-url">—</div>
+                <div class="bill-result-actions">
+                  <button class="action-btn primary" onclick="copyBillLink('sub-result-url')">📋 Copy Link</button>
+                  <button class="action-btn" onclick="openBillLink('sub-result-url')">↗ Open</button>
+                  <button class="action-btn" onclick="emailSubLink()">✉ Email to Client</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bill-summary">
+            <div class="bill-summary-head">Subscription Summary</div>
+            <div class="bill-summary-body">
+              <div class="bill-sum-row"><span class="bill-sum-label">Client</span><span class="bill-sum-val" id="sum-sub-name">—</span></div>
+              <div class="bill-sum-row"><span class="bill-sum-label">Service</span><span class="bill-sum-val" id="sum-sub-service">—</span></div>
+              <hr class="bill-sum-divider">
+              <div class="bill-sum-row"><span class="bill-sum-label">Charged Today</span><span class="bill-sum-val accent" id="sum-sub-today">$0.00</span></div>
+              <div class="bill-sum-row"><span class="bill-sum-label">Then Recurring</span><span class="bill-sum-val green" id="sum-sub-recurring">$0.00 / mo</span></div>
+              <hr class="bill-sum-divider">
+              <div class="bill-sum-row"><span class="bill-sum-label">Year 1 Total</span><span class="bill-sum-val" id="sum-sub-year">$0.00</span></div>
+              <div class="bill-sum-row"><span class="bill-sum-label">Processor</span><span class="bill-sum-val">Stripe</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HISTORY ── -->
+      <div class="billing-pane" id="bpane-history">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Sent This Session</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Resets on reload · check Stripe for full history</span>
+          </div>
+          <table class="inv-table">
+            <thead><tr>
+              <th>Client</th><th>Service</th><th>Type</th><th>Amount</th><th>Recurring</th><th>Created</th><th>Link</th>
+            </tr></thead>
+            <tbody id="bill-history-tbody">
+              <tr><td colspan="7" style="text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:11px;padding:32px;">No billing links generated yet this session.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
+
 
 <div class="status-bar">
   <div class="sb-item"><div class="sb-dot" style="background:var(--green)"></div>ONLINE</div>
@@ -1787,6 +2025,249 @@ function syncDrawer(name, email, submitsCount) {
   if (submitsCount !== undefined) {
     document.getElementById('drawer-badge-submits').textContent = submitsCount;
   }
+}
+
+// ─────────────────────────────────────────────────────────────
+// BILLING
+// ─────────────────────────────────────────────────────────────
+const BILLING_WORKER = 'https://billing.edgeformmedia.workers.dev';
+
+const billHistory    = [];
+let   billingInterval = 'month';
+
+function switchBillingTab(tab) {
+  document.querySelectorAll('.billing-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.billing-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('btab-' + tab).classList.add('active');
+  document.getElementById('bpane-' + tab).classList.add('active');
+  if (tab === 'history') renderBillHistory();
+}
+
+function setInterval2(val) {
+  billingInterval = val;
+  document.getElementById('ibtn-month').classList.toggle('active', val === 'month');
+  document.getElementById('ibtn-year').classList.toggle('active', val === 'year');
+  updateSubSummary();
+}
+
+function updateInvSummary() {
+  const name    = document.getElementById('inv-name').value    || '—';
+  const service = document.getElementById('inv-service').value || '—';
+  const amount  = parseFloat(document.getElementById('inv-amount').value) || 0;
+  document.getElementById('sum-inv-name').textContent    = name;
+  document.getElementById('sum-inv-service').textContent = service.length > 24 ? service.slice(0,24) + '…' : service;
+  document.getElementById('sum-inv-amount').textContent  = '$' + amount.toFixed(2);
+}
+
+function updateSubSummary() {
+  const name      = document.getElementById('sub-name').value      || '—';
+  const service   = document.getElementById('sub-service').value   || '—';
+  const first     = parseFloat(document.getElementById('sub-first').value)     || 0;
+  const recurring = parseFloat(document.getElementById('sub-recurring').value) || 0;
+  const isYear    = billingInterval === 'year';
+  const today     = first + recurring;
+  const yearTotal = first + (isYear ? recurring : recurring * 12);
+  document.getElementById('sum-sub-name').textContent      = name;
+  document.getElementById('sum-sub-service').textContent   = service.length > 22 ? service.slice(0,22)+'…' : service;
+  document.getElementById('sum-sub-today').textContent     = '$' + today.toFixed(2);
+  document.getElementById('sum-sub-recurring').textContent = '$' + recurring.toFixed(2) + (isYear ? ' / yr' : ' / mo');
+  document.getElementById('sum-sub-year').textContent      = '$' + yearTotal.toFixed(2);
+}
+
+async function createInvoice() {
+  const name    = document.getElementById('inv-name').value.trim();
+  const email   = document.getElementById('inv-email').value.trim();
+  const service = document.getElementById('inv-service').value.trim() || 'Web Design Services';
+  const amount  = document.getElementById('inv-amount').value.trim();
+  const ref     = document.getElementById('inv-ref').value.trim();
+  const notes   = document.getElementById('inv-notes').value.trim();
+  const msgEl   = document.getElementById('inv-msg');
+  const resultEl= document.getElementById('inv-result');
+
+  msgEl.className = 'bill-msg';
+  resultEl.classList.remove('show');
+
+  if (!amount || parseFloat(amount) < 0.50) {
+    msgEl.className = 'bill-msg error show';
+    msgEl.textContent = 'Enter a valid amount ($0.50 minimum).';
+    return;
+  }
+
+  setBillBtnLoading('inv-send-btn', true);
+  try {
+    const res  = await fetch(BILLING_WORKER + '/invoice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientName: name, clientEmail: email, service, amount: parseFloat(amount), notes, invoiceRef: ref }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Worker error');
+
+    document.getElementById('inv-result-url').textContent = data.url;
+    const qrEl = document.getElementById('inv-qr');
+    qrEl.src = data.qrUrl;
+    qrEl.style.display = 'block';
+    resultEl.classList.add('show');
+
+    billHistory.unshift({
+      client: name || email || '—', service, type: 'Invoice',
+      amount: '$' + parseFloat(amount).toFixed(2), recurring: '—',
+      created: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      url: data.url,
+    });
+    msgEl.className = 'bill-msg success show';
+    msgEl.textContent = '✓ Payment link created';
+  } catch (err) {
+    msgEl.className = 'bill-msg error show';
+    msgEl.textContent = 'Error: ' + err.message;
+  }
+  setBillBtnLoading('inv-send-btn', false);
+}
+
+async function createSubscription() {
+  const name      = document.getElementById('sub-name').value.trim();
+  const email     = document.getElementById('sub-email').value.trim();
+  const service   = document.getElementById('sub-service').value.trim() || 'Website Management';
+  const first     = document.getElementById('sub-first').value.trim();
+  const recurring = document.getElementById('sub-recurring').value.trim();
+  const notes     = document.getElementById('sub-notes').value.trim();
+  const msgEl     = document.getElementById('sub-msg');
+  const resultEl  = document.getElementById('sub-result');
+
+  msgEl.className = 'bill-msg';
+  resultEl.classList.remove('show');
+
+  if (!email) {
+    msgEl.className = 'bill-msg error show';
+    msgEl.textContent = 'Client email is required.';
+    return;
+  }
+  if (!recurring || parseFloat(recurring) < 0.50) {
+    msgEl.className = 'bill-msg error show';
+    msgEl.textContent = 'Recurring payment must be at least $0.50.';
+    return;
+  }
+
+  setBillBtnLoading('sub-send-btn', true);
+  try {
+    const res  = await fetch(BILLING_WORKER + '/subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        clientName: name, clientEmail: email, service,
+        firstPayment: parseFloat(first || 0),
+        recurringPayment: parseFloat(recurring),
+        interval: billingInterval, notes,
+      }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Worker error');
+
+    document.getElementById('sub-result-url').textContent = data.url;
+    resultEl.classList.add('show');
+
+    billHistory.unshift({
+      client: name || email || '—', service, type: 'Subscription',
+      amount: first ? '$' + parseFloat(first).toFixed(2) : '—',
+      recurring: '$' + parseFloat(recurring).toFixed(2) + ' / ' + billingInterval,
+      created: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      url: data.url,
+    });
+    msgEl.className = 'bill-msg success show';
+    msgEl.textContent = '✓ Subscription checkout created';
+  } catch (err) {
+    msgEl.className = 'bill-msg error show';
+    msgEl.textContent = 'Error: ' + err.message;
+  }
+  setBillBtnLoading('sub-send-btn', false);
+}
+
+function renderBillHistory() {
+  const tbody = document.getElementById('bill-history-tbody');
+  if (!billHistory.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:11px;padding:32px;">No billing links generated yet this session.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = billHistory.map(r => `
+    <tr>
+      <td style="font-weight:500;color:var(--text);">${r.client}</td>
+      <td>${r.service}</td>
+      <td><span class="chip ${r.type === 'Invoice' ? 'chip-blue' : 'chip-purple'}">${r.type}</span></td>
+      <td style="font-family:var(--mono);">${r.amount}</td>
+      <td style="font-family:var(--mono);color:var(--green);">${r.recurring}</td>
+      <td style="font-family:var(--mono);color:var(--text-muted);">${r.created}</td>
+      <td><a href="${r.url}" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--accent-bright);">Open ↗</a></td>
+    </tr>`).join('');
+}
+
+function copyBillLink(elId) {
+  const url = document.getElementById(elId).textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const el = document.getElementById(elId);
+    const orig = el.textContent;
+    el.textContent = '✓ Copied!';
+    setTimeout(() => { el.textContent = orig; }, 1800);
+  });
+}
+
+function openBillLink(elId) {
+  const url = document.getElementById(elId).textContent;
+  if (url && url !== '—') window.open(url, '_blank');
+}
+
+function emailInvoiceLink() {
+  const toEmail = document.getElementById('inv-email').value.trim();
+  const name    = document.getElementById('inv-name').value.trim();
+  const service = document.getElementById('inv-service').value.trim();
+  const url     = document.getElementById('inv-result-url').textContent;
+  const amount  = document.getElementById('inv-amount').value;
+  if (!toEmail) { alert('Enter client email first.'); return; }
+  document.getElementById('compose-to').value       = toEmail;
+  document.getElementById('compose-subject').value  = `Invoice — ${service || 'Web Design Services'}`;
+  document.getElementById('compose-body-text').value =
+`Hi ${name ? name.split(' ')[0] : 'there'},
+
+Please find your invoice for ${service || 'services rendered'} below.
+
+Amount Due: $${parseFloat(amount || 0).toFixed(2)}
+
+Pay securely here:
+${url}
+
+Thank you for your business!`;
+  showPage('email');
+}
+
+function emailSubLink() {
+  const toEmail   = document.getElementById('sub-email').value.trim();
+  const name      = document.getElementById('sub-name').value.trim();
+  const service   = document.getElementById('sub-service').value.trim();
+  const recurring = document.getElementById('sub-recurring').value;
+  const url       = document.getElementById('sub-result-url').textContent;
+  if (!toEmail) { alert('Enter client email first.'); return; }
+  document.getElementById('compose-to').value       = toEmail;
+  document.getElementById('compose-subject').value  = `Your ${service || 'Website'} Subscription — Edgeform Media`;
+  document.getElementById('compose-body-text').value =
+`Hi ${name ? name.split(' ')[0] : 'there'},
+
+Here is your secure checkout link to get started with ${service || 'your website subscription'}.
+
+Recurring: $${parseFloat(recurring || 0).toFixed(2)} / ${billingInterval}
+
+Complete your setup here:
+${url}
+
+Once checkout is complete, your subscription will be active and all future billing is handled automatically.
+
+Any questions? Just reply to this email.`;
+  showPage('email');
+}
+
+function setBillBtnLoading(id, loading) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  btn.classList.toggle('loading', loading);
+  btn.disabled = loading;
 }
 </script>
 </body>
