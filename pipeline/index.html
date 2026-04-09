@@ -774,6 +774,12 @@ nav {
           <option value="Yes">Has Website</option>
           <option value="No" selected>No Website</option>
         </select>
+        <select class="list-filter" id="lead-filter-platform" onchange="filterLeads()">
+          <option value="">All Types</option>
+          <option value="platform">Platform</option>
+          <option value="hosted">Hosted</option>
+          <option value="none">No Site</option>
+        </select>
         <span class="list-count" id="leads-count">— leads</span>
         <button class="refresh-btn" onclick="loadLeads()">↻</button>
       </div>
@@ -925,6 +931,90 @@ const STAGE_COLORS = {
 
 const STAGES = ['New Lead','Contacted','Interested','Appt Set','Presented','Closed ✅','Not Interested ❌'];
 
+// ─── UNIVERSAL FIELD MAPPER ──────────────────────────────────
+// Maps internal field keys → array of possible header names (case-insensitive).
+// First match wins. Supports any spreadsheet — row 1 headers auto-detected.
+const FIELD_ALIASES = {
+  name:       ['name', 'business name', 'company name', 'lead name', 'contact name', 'full name', 'client'],
+  phone:      ['phone', 'phone number', 'telephone', 'tel', 'mobile', 'cell', 'contact phone'],
+  email:      ['email', 'email address', 'e-mail', 'contact email'],
+  city:       ['city', 'town', 'locality'],
+  state:      ['state', 'province', 'region', 'st'],
+  address:    ['address', 'street address', 'street', 'location', 'full address'],
+  category:   ['category', 'type', 'business type', 'industry', 'service', 'niche'],
+  rating:     ['rating', 'stars', 'google rating', 'avg rating'],
+  reviews:    ['reviews', 'review count', 'reviewcount', 'num reviews', 'total reviews'],
+  hasWebsite: ['has website', 'haswebsite', 'website?', 'has_website', 'has site'],
+  website:    ['website', 'website url', 'web', 'url', 'site', 'homepage'],
+  mapsUrl:    ['maps url', 'mapsurl', 'google maps', 'maps link', 'map url', 'map link', 'maps'],
+  searchUrl:  ['google search url', 'search url', 'searchurl', 'google search'],
+  stage:      ['stage', 'status', 'pipeline stage', 'lead stage', 'disposition'],
+  notes:      ['notes', 'note', 'comments', 'comment', 'memo'],
+  savedAt:    ['saved at', 'savedat', 'created at', 'createdat', 'date added', 'added', 'created'],
+  scannedAt:  ['scanned at', 'scannedat', 'scan date'],
+  lastUpdated:['last updated', 'lastupdated', 'updated at', 'updatedat', 'modified'],
+  id:         ['id', 'lead id', 'record id', 'row id', '#'],
+  scanQuery:  ['scan query', 'scanquery', 'search query', 'query'],
+  websiteType:['website type', 'websitetype', 'site type'],
+  websiteSrc: ['website source', 'websitesource', 'site source'],
+  websiteConf:['website confidence', 'websiteconfidence', 'confidence'],
+};
+
+// Built at load time: maps each actual header → internal key
+let fieldMap = {};      // e.g. { "Name": "name", "Phone": "phone", … }
+let headerKeys = [];    // original header names from row 1
+
+// Build the field map from the actual headers found in the data
+function buildFieldMap(sampleLead) {
+  fieldMap = {};
+  headerKeys = Object.keys(sampleLead);
+
+  for (const header of headerKeys) {
+    const h = header.trim().toLowerCase();
+    for (const [key, aliases] of Object.entries(FIELD_ALIASES)) {
+      if (aliases.includes(h)) {
+        fieldMap[header] = key;
+        break;
+      }
+    }
+    // If no alias matched, leave unmapped — we'll still show it in detail
+  }
+}
+
+// Universal getter: returns value for an internal field key from any lead object
+function F(lead, key) {
+  if (!lead) return '';
+  // Find the first header that maps to this key
+  for (const [header, mappedKey] of Object.entries(fieldMap)) {
+    if (mappedKey === key) {
+      const v = lead[header];
+      return (v !== undefined && v !== null) ? String(v) : '';
+    }
+  }
+  return '';
+}
+
+// Get all "extra" fields not covered by the core display (for detail view)
+function getExtraFields(lead) {
+  const coreKeys = new Set(['name','phone','email','city','state','address','category',
+    'rating','reviews','hasWebsite','mapsUrl','stage','notes','savedAt']);
+  const extras = [];
+  for (const header of headerKeys) {
+    const mapped = fieldMap[header];
+    if (mapped && coreKeys.has(mapped)) continue; // skip core fields
+    const val = lead[header];
+    if (val !== undefined && val !== null && String(val).trim()) {
+      extras.push({ label: header, value: String(val) });
+    }
+  }
+  return extras;
+}
+
+// Escape strings for safe inline HTML onclick attrs
+function esc(str) {
+  return String(str || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+}
+
 // ─── State ────────────────────────────────────────────────────
 let setup        = null;
 let allLeads     = [];
@@ -969,12 +1059,10 @@ let currentLead  = null;
     document.getElementById('nav-caller').textContent = data.name;
 
     if (data.gas_url) {
-      // Has GAS URL in column G — boot straight in
       document.getElementById('setup-screen').style.display = 'none';
       loadLeads();
       renderCalendar();
     } else {
-      // No GAS URL yet — show setup screen (name already known)
       document.getElementById('setup-screen').style.display = 'flex';
       const note = document.createElement('div');
       note.style.cssText = 'font-family:monospace;font-size:12px;color:#1976d2;margin-bottom:12px;padding:8px 12px;background:#e3f2fd;border-radius:6px;';
@@ -984,7 +1072,6 @@ let currentLead  = null;
     }
 
   } catch(err) {
-    // Network error — try cached setup as fallback
     try { setup = JSON.parse(localStorage.getItem(SETUP_KEY)); } catch {}
     if (setup?.gasUrl) {
       document.getElementById('setup-screen').style.display = 'none';
@@ -1030,21 +1117,45 @@ async function loadLeads() {
 
     if (!data.success) throw new Error(data.error || 'GAS error');
 
-    allLeads = (data.leads || []).filter(l => l['Name'] || l['name']);
+    allLeads = (data.leads || []);
+
+    // Build field map from the first lead's headers
+    if (allLeads.length) buildFieldMap(allLeads[0]);
+
+    // Filter out leads with no name
+    allLeads = allLeads.filter(l => F(l, 'name'));
     filteredLeads = [...allLeads];
 
     // Populate stage filter
-    const stages = [...new Set(allLeads.map(l => l['Stage'] || l['stage'] || 'New Lead'))];
+    const stages = [...new Set(allLeads.map(l => F(l, 'stage') || 'New Lead'))];
     const sel = document.getElementById('lead-filter-stage');
     sel.innerHTML = '<option value="">All Stages</option>' +
       STAGES.filter(s => stages.includes(s)).map(s =>
         `<option value="${s}">${s}</option>`).join('');
 
-    // Default to No Website filter on load
-    filteredLeads = allLeads.filter(l => {
-      const val = (l['Has Website'] || l['hasWebsite'] || '').toString().trim().toLowerCase();
-      return val !== 'yes';
-    });
+    // Check if this sheet even has a "Has Website" column
+    const hasWebCol = Object.values(fieldMap).includes('hasWebsite');
+    const hasTypeCol = Object.values(fieldMap).includes('websiteType');
+
+    if (hasWebCol) {
+      // Default to No Website filter on load (old behavior)
+      document.getElementById('lead-filter-web').style.display = '';
+      filteredLeads = allLeads.filter(l => {
+        const val = F(l, 'hasWebsite').toLowerCase();
+        return val !== 'yes';
+      });
+    } else {
+      // No website column — hide the filter, show all
+      document.getElementById('lead-filter-web').style.display = 'none';
+      filteredLeads = [...allLeads];
+    }
+
+    // Show/hide platform filter based on whether Website Type column exists
+    if (hasTypeCol) {
+      document.getElementById('lead-filter-platform').style.display = '';
+    } else {
+      document.getElementById('lead-filter-platform').style.display = 'none';
+    }
 
     renderLeadList(filteredLeads);
     renderPipeline();
@@ -1066,11 +1177,10 @@ function renderLeadList(leads) {
   }
 
   document.getElementById('lead-list').innerHTML = leads.map((l, i) => {
-    const name   = l['Name'] || l['name'] || '—';
-    const city   = l['City'] || l['city'] || '';
-    const zip    = (l['State'] || l['state'] || '') + ' ' + '';
-    const phone  = l['Phone'] || l['phone'] || '';
-    const stage  = l['Stage'] || l['stage'] || 'New Lead';
+    const name   = F(l, 'name') || '—';
+    const city   = F(l, 'city');
+    const phone  = F(l, 'phone');
+    const stage  = F(l, 'stage') || 'New Lead';
     const cls    = STAGE_CLASSES[stage] || 's-new';
     const hasAppt = appointments.some(a => a.leadName === name);
 
@@ -1085,31 +1195,40 @@ function renderLeadList(leads) {
         ${hasAppt ? '<span style="font-size:10px;color:var(--orange);margin-left:6px;">📅 Appt</span>' : ''}
       </div>
       <div class="lead-actions">
-        ${phone ? `<button class="icon-btn call" onclick="showCallResults('${name}','${phone}','',event)">📞</button>` : ''}
+        ${phone ? `<button class="icon-btn call" onclick="showCallResults('${esc(name)}','${esc(phone)}','',event)">📞</button>` : ''}
         <button class="icon-btn cal" onclick="event.stopPropagation();openBookModal(${i})">📅</button>
-        ${phone ? `<button class="icon-btn sms" onclick="event.stopPropagation();smsLead('${phone}')">💬</button>` : ''}
+        ${phone ? `<button class="icon-btn sms" onclick="event.stopPropagation();smsLead('${esc(phone)}')">💬</button>` : ''}
       </div>
     </div>`;
   }).join('');
 }
 
 function filterLeads() {
-  const q     = document.getElementById('lead-search').value.toLowerCase();
-  const stage = document.getElementById('lead-filter-stage').value;
-  const web   = document.getElementById('lead-filter-web').value;
+  const q        = document.getElementById('lead-search').value.toLowerCase();
+  const stage    = document.getElementById('lead-filter-stage').value;
+  const web      = document.getElementById('lead-filter-web').value;
+  const platform = document.getElementById('lead-filter-platform').value;
 
   filteredLeads = allLeads.filter(l => {
-    const name    = (l['Name']||l['name']||'').toLowerCase();
-    const city    = (l['City']||l['city']||'').toLowerCase();
-    const phone   = (l['Phone']||l['phone']||'').toLowerCase();
-    const cat     = (l['Category']||l['category']||'').toLowerCase();
+    const name    = F(l, 'name').toLowerCase();
+    const city    = F(l, 'city').toLowerCase();
+    const phone   = F(l, 'phone').toLowerCase();
+    const cat     = F(l, 'category').toLowerCase();
     const matchQ  = !q || [name,city,phone,cat].join(' ').includes(q);
-    const matchS  = !stage || (l['Stage']||l['stage']) === stage;
-    const hasWebVal = (l['Has Website']||l['hasWebsite']||'').toString().trim().toLowerCase();
+    const matchS  = !stage || F(l, 'stage') === stage;
+    const hasWebVal = F(l, 'hasWebsite').toLowerCase();
     const matchW  = !web ||
       (web === 'Yes' && hasWebVal === 'yes') ||
       (web === 'No'  && hasWebVal !== 'yes');
-    return matchQ && matchS && matchW;
+
+    // Platform / Hosted / No Site filter
+    const typeVal = F(l, 'websiteType').toLowerCase();
+    const matchP  = !platform ||
+      (platform === 'platform' && typeVal.includes('platform')) ||
+      (platform === 'hosted'   && typeVal.includes('hosted')) ||
+      (platform === 'none'     && !typeVal);
+
+    return matchQ && matchS && matchW && matchP;
   });
 
   renderLeadList(filteredLeads);
@@ -1136,56 +1255,61 @@ function navLead(dir) {
 }
 
 function renderDetail(l, idx) {
-  const name    = l['Name']||l['name']||'—';
-  const phone   = l['Phone']||l['phone']||'';
-  const email   = l['Email']||l['email']||'';
-  const city    = l['City']||l['city']||'';
-  const state   = l['State']||l['state']||'';
-  const address = l['Address']||l['address']||'';
-  const cat     = l['Category']||l['category']||'';
-  const rating  = l['Rating']||l['rating']||'';
-  const reviews = l['Reviews']||l['reviewCount']||'';
-  const hasWeb  = l['Has Website']||l['hasWebsite']||'';
-  const mapsUrl = l['Maps URL']||l['mapsUrl']||'';
-  const stage   = l['Stage']||l['stage']||'New Lead';
-  const notes   = l['Notes']||l['notes']||'';
-  const savedAt = l['Saved At']||l['savedAt']||'';
+  const name    = F(l, 'name') || '—';
+  const phone   = F(l, 'phone');
+  const email   = F(l, 'email');
+  const city    = F(l, 'city');
+  const state   = F(l, 'state');
+  const address = F(l, 'address');
+  const cat     = F(l, 'category');
+  const rating  = F(l, 'rating');
+  const reviews = F(l, 'reviews');
+  const hasWeb  = F(l, 'hasWebsite');
+  const website = F(l, 'website');
+  const mapsUrl = F(l, 'mapsUrl');
+  const stage   = F(l, 'stage') || 'New Lead';
+  const notes   = F(l, 'notes');
+  const savedAt = F(l, 'savedAt');
 
   document.getElementById('detail-counter').textContent = `${idx+1} / ${filteredLeads.length}`;
 
   // Lead appointments
   const leadAppts = appointments.filter(a => a.leadName === name);
 
+  // Extra fields not already shown above
+  const extras = getExtraFields(l);
+
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-section">
       <div class="detail-name">${name}</div>
       ${cat ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${cat}</div>` : ''}
-      ${phone ? `<div class="detail-field-row"><span class="detail-field-label">Phone</span><span class="detail-field-val">${phone}</span></div>` : ''}
-      ${email ? `<div class="detail-field-row"><span class="detail-field-label">Email</span><span class="detail-field-val">${email}</span></div>` : ''}
-      <div class="detail-field-row"><span class="detail-field-label">Address</span><span class="detail-field-val">${address}${city ? ', '+city : ''}${state ? ', '+state : ''}</span></div>
+      ${phone ? `<div class="detail-field-row"><span class="detail-field-label">Phone</span><span class="detail-field-val"><a href="tel:${phone.replace(/\D/g,'')}">${phone}</a></span></div>` : ''}
+      ${email ? `<div class="detail-field-row"><span class="detail-field-label">Email</span><span class="detail-field-val"><a href="mailto:${email}">${email}</a></span></div>` : ''}
+      ${address || city || state ? `<div class="detail-field-row"><span class="detail-field-label">Address</span><span class="detail-field-val">${address}${city ? ', '+city : ''}${state ? ', '+state : ''}</span></div>` : ''}
       ${rating ? `<div class="detail-field-row"><span class="detail-field-label">Rating</span><span class="detail-field-val">⭐ ${rating} ${reviews ? `(${reviews} reviews)` : ''}</span></div>` : ''}
-      ${hasWeb ? `<div class="detail-field-row"><span class="detail-field-label">Website</span><span class="detail-field-val">${hasWeb}</span></div>` : ''}
+      ${hasWeb ? `<div class="detail-field-row"><span class="detail-field-label">Website</span><span class="detail-field-val">${website ? `<a href="${website.startsWith('http')?website:'https://'+website}" target="_blank">${hasWeb} ↗</a>` : hasWeb}</span></div>` : ''}
       ${mapsUrl ? `<div class="detail-field-row"><span class="detail-field-label">Maps</span><span class="detail-field-val"><a href="${mapsUrl}" target="_blank">Open in Google Maps ↗</a></span></div>` : ''}
       ${savedAt ? `<div class="detail-field-row"><span class="detail-field-label">Saved</span><span class="detail-field-val" style="font-family:var(--mono);font-size:11px;">${fmtDate(savedAt)}</span></div>` : ''}
+      ${extras.map(e => `<div class="detail-field-row"><span class="detail-field-label">${e.label}</span><span class="detail-field-val" style="font-size:12px;word-break:break-all;">${e.value.startsWith('http') ? `<a href="${e.value}" target="_blank">${e.value.length > 40 ? e.value.slice(0,40)+'…' : e.value} ↗</a>` : e.value}</span></div>`).join('')}
     </div>
 
     <div class="detail-actions-grid">
-      <button class="detail-action-btn" onclick="callLead('${phone}')">
+      ${phone ? `<button class="detail-action-btn" onclick="callLead('${esc(phone)}')">
         <span class="btn-icon">📞</span>
-        <span>Call Home</span>
-      </button>
+        <span>Call</span>
+      </button>` : ''}
       <button class="detail-action-btn book" onclick="openBookModal(${idx})">
         <span class="btn-icon">📅</span>
         <span>Book Appt</span>
       </button>
-      <button class="detail-action-btn" onclick="smsLead('${phone}')">
+      ${phone ? `<button class="detail-action-btn" onclick="smsLead('${esc(phone)}')">
         <span class="btn-icon">💬</span>
         <span>Send Text</span>
-      </button>
-      ${mapsUrl ? `<button class="detail-action-btn" onclick="window.open('${mapsUrl}','_blank')">
+      </button>` : ''}
+      ${mapsUrl ? `<button class="detail-action-btn" onclick="window.open('${esc(mapsUrl)}','_blank')">
         <span class="btn-icon">📍</span>
         <span>Map It</span>
-      </button>` : `<button class="detail-action-btn" onclick="googleSearch('${name}','${city}')">
+      </button>` : `<button class="detail-action-btn" onclick="googleSearch('${esc(name)}','${esc(city)}')">
         <span class="btn-icon">🔍</span>
         <span>Search</span>
       </button>`}
@@ -1200,7 +1324,7 @@ function renderDetail(l, idx) {
           const col = STAGE_COLORS[s] || '#666';
           return `<button class="stage-opt ${sel ? cls : ''}" 
             style="${sel ? `background:${col};border-color:${col};color:#fff;` : ''}"
-            onclick="updateStage('${name}','${address}','${s}',${idx})">${s}</button>`;
+            onclick="updateStage('${esc(name)}','${esc(address)}','${esc(s)}',${idx})">${s}</button>`;
         }).join('')}
       </div>
     </div>
@@ -1208,7 +1332,7 @@ function renderDetail(l, idx) {
     <div class="notes-section">
       <div class="notes-label">Notes</div>
       <textarea class="notes-textarea" id="detail-notes" placeholder="Add notes…">${notes}</textarea>
-      <button class="save-notes-btn" onclick="saveNotes('${name}','${address}',${idx})">Save Notes</button>
+      <button class="save-notes-btn" onclick="saveNotes('${esc(name)}','${esc(address)}',${idx})">Save Notes</button>
     </div>
 
     ${leadAppts.length ? `
@@ -1231,15 +1355,15 @@ function renderDetail(l, idx) {
 
 // ─── Stage update ─────────────────────────────────────────────
 async function updateStage(name, address, stage, idx) {
-  // Update locally
-  filteredLeads[idx]['Stage'] = stage;
-  const gi = allLeads.findIndex(l => (l['Name']||l['name']) === name);
-  if (gi >= 0) allLeads[gi]['Stage'] = stage;
+  // Find the header key that maps to 'stage' and update it
+  const stageHeader = Object.entries(fieldMap).find(([h,k]) => k === 'stage');
+  const stageKey = stageHeader ? stageHeader[0] : 'Stage';
+  filteredLeads[idx][stageKey] = stage;
+  const gi = allLeads.findIndex(l => F(l, 'name') === name);
+  if (gi >= 0) allLeads[gi][stageKey] = stage;
 
-  // Re-render detail
   renderDetail(filteredLeads[idx], idx);
 
-  // Push to GAS
   try {
     const payload = btoa(JSON.stringify({ action: 'updateStage', name, address, stage }));
     await fetch(`${setup.gasUrl}?action=updateStage&payload=${payload}`);
@@ -1248,12 +1372,14 @@ async function updateStage(name, address, stage, idx) {
 
 async function saveNotes(name, address, idx) {
   const notes = document.getElementById('detail-notes').value;
-  filteredLeads[idx]['Notes'] = notes;
-  const gi = allLeads.findIndex(l => (l['Name']||l['name']) === name);
-  if (gi >= 0) allLeads[gi]['Notes'] = notes;
+  const notesHeader = Object.entries(fieldMap).find(([h,k]) => k === 'notes');
+  const notesKey = notesHeader ? notesHeader[0] : 'Notes';
+  filteredLeads[idx][notesKey] = notes;
+  const gi = allLeads.findIndex(l => F(l, 'name') === name);
+  if (gi >= 0) allLeads[gi][notesKey] = notes;
 
   try {
-    const stage = filteredLeads[idx]['Stage'] || 'New Lead';
+    const stage = F(filteredLeads[idx], 'stage') || 'New Lead';
     const payload = btoa(JSON.stringify({ action: 'updateStage', name, address, stage, notes }));
     await fetch(`${setup.gasUrl}?action=updateStage&payload=${payload}`);
     showToast('Notes saved ✓');
@@ -1269,7 +1395,7 @@ function renderPipeline() {
   }
 
   container.innerHTML = STAGES.map(stage => {
-    const leads = allLeads.filter(l => (l['Stage']||l['stage']||'New Lead') === stage);
+    const leads = allLeads.filter(l => (F(l, 'stage') || 'New Lead') === stage);
     const color = STAGE_COLORS[stage] || '#666';
     return `
     <div class="pipeline-stage-card" id="ps-${stage.replace(/\s/g,'_')}">
@@ -1281,14 +1407,14 @@ function renderPipeline() {
       ${leads.length ? `
       <div class="pipeline-stage-leads">
         ${leads.map(l => {
-          const name  = l['Name']||l['name']||'—';
-          const city  = l['City']||l['city']||'';
-          const phone = l['Phone']||l['phone']||'';
+          const n     = F(l, 'name') || '—';
+          const c     = F(l, 'city');
+          const p     = F(l, 'phone');
           const idx   = allLeads.indexOf(l);
           return `<div class="pipeline-lead-row" onclick="openLeadFromPipeline(${idx})">
-            <div class="pipeline-lead-name">${name}</div>
-            <div class="pipeline-lead-city">${city}</div>
-            <div class="pipeline-lead-phone">${phone}</div>
+            <div class="pipeline-lead-name">${n}</div>
+            <div class="pipeline-lead-city">${c}</div>
+            <div class="pipeline-lead-phone">${p}</div>
           </div>`;
         }).join('')}
       </div>` : ''}
@@ -1301,7 +1427,6 @@ function togglePipelineStage(id) {
 }
 
 function openLeadFromPipeline(idx) {
-  // Find in filteredLeads
   const lead = allLeads[idx];
   const fi = filteredLeads.indexOf(lead);
   showTab('leads');
@@ -1395,13 +1520,13 @@ function openBookModal(idx) {
   currentLead = l;
   currentLeadIdx = idx;
 
-  const name    = l['Name']||l['name']||'';
-  const phone   = l['Phone']||l['phone']||'';
-  const email   = l['Email']||l['email']||'';
-  const cat     = l['Category']||l['category']||'';
-  const mapsUrl = l['Maps URL']||l['mapsUrl']||'';
-  const city    = l['City']||l['city']||'';
-  const address = l['Address']||l['address']||'';
+  const name    = F(l, 'name');
+  const phone   = F(l, 'phone');
+  const email   = F(l, 'email');
+  const cat     = F(l, 'category');
+  const mapsUrl = F(l, 'mapsUrl');
+  const city    = F(l, 'city');
+  const address = F(l, 'address');
 
   document.getElementById('m-booker').value    = setup?.callerName || '';
   document.getElementById('m-lead-name').value = name;
@@ -1437,7 +1562,7 @@ async function bookAppointment() {
   const duration = parseInt(document.getElementById('m-duration').value);
   const notes    = document.getElementById('m-notes').value.trim();
   const msgEl    = document.getElementById('book-msg');
-  const address  = currentLead ? (currentLead['Address']||currentLead['address']||'') : '';
+  const address  = currentLead ? F(currentLead, 'address') : '';
 
   msgEl.className = 'book-msg';
 
@@ -1520,8 +1645,8 @@ async function logCallResult(leadName, phone, address, result) {
 
   // Update stage if contacted
   if (result === 'Interested' || result === 'Callback Requested') {
-    const li = filteredLeads.findIndex(l => (l['Name']||l['name']) === leadName);
-    if (li >= 0) updateStage(leadName, address, 'Contacted', '');
+    const li = filteredLeads.findIndex(l => F(l, 'name') === leadName);
+    if (li >= 0) updateStage(leadName, address, 'Contacted', li);
   }
 }
 
